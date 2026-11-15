@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idle_miner_sim/app/app.dart';
 import 'package:idle_miner_sim/engine/economy.dart';
 import 'package:idle_miner_sim/state/game_storage.dart';
+import 'package:idle_miner_sim/state/onboarding_controller.dart';
 import 'package:idle_miner_sim/state/providers.dart';
 import 'package:idle_miner_sim/state/reminder_scheduler.dart';
 import 'package:idle_miner_sim/state/reminders.dart';
@@ -105,13 +106,19 @@ Future<SharedPreferences> pumpApp(
   ReminderScheduler? reminders,
   bool animations = false,
   bool settle = true,
+  bool onboarded = true,
 }) async {
   if (!animations) {
     tester.platformDispatcher.accessibilityFeaturesTestValue =
         const FakeAccessibilityFeatures(disableAnimations: true);
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
   }
-  final prefs = await mockPrefs(saved);
+  // Most tests are about the game, so skip the first-launch intro unless a
+  // test asks for it.
+  final prefs = await mockPrefs({
+    if (onboarded) OnboardingController.key: true,
+    ...saved,
+  });
   await tester.pumpWidget(
     ProviderScope(
       overrides: appOverrides(prefs, clock, reminders: reminders),

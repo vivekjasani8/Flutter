@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app/router.dart';
 import '../../engine/config.dart';
 import '../../state/game_controller.dart';
 import '../../state/providers.dart';
@@ -53,6 +55,13 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: const Text('Debug only · arrives in about 10 s'),
               onTap: () => _sendTestReminder(context, ref),
             ),
+          ListTile(
+            key: const ValueKey('how-to-play'),
+            leading: const Icon(Icons.help_outline),
+            title: const Text('How to play'),
+            subtitle: const Text('See the intro again'),
+            onTap: () => context.push(Routes.welcome),
+          ),
           ListTile(
             key: const ValueKey('reset-progress'),
             leading: const Icon(Icons.restart_alt),

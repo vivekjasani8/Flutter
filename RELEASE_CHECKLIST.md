@@ -84,9 +84,8 @@ needs; the store forms in section 5 depend on the answer.
       Build on **test IDs**; swap to live IDs only at release.
 - [ ] **Crashlytics** (crash reports) and **Remote Config** (tune the economy
       without an update) **(M7)**.
-- [ ] **Onboarding screen** showing the "this is a game" disclaimer on first
-      launch — the roadmap guardrails require it on onboarding, Settings and the
-      store page. Settings already shows it; onboarding does not exist yet.
+- [x] **Onboarding screen** showing the "this is a game" disclaimer on first
+      launch (Skip can't bypass it; Settings → How to play reopens it).
 - [ ] **Daily reward day boundary**: days currently roll over at **00:00 UTC**
       (05:30 in India). Decide whether that's fine or should follow the
       player's local midnight (harder to keep cheat-resistant).
@@ -98,7 +97,7 @@ needs; the store forms in section 5 depend on the answer.
       Keep: no "withdraw", "cash out", "earn real crypto/USDT" anywhere — not in
       the app, listing, screenshots or ads.
 - [ ] **Disclaimer** ("All coins are virtual… not financial advice") in the
-      store description, onboarding and Settings.
+      **store description**. Already in the app: onboarding, Mine and Settings.
 - [ ] **Privacy policy URL** (required by both stores, even for a local-only
       app). Describe exactly what is stored (today: game progress on the device
       only) and update it when Firebase/AdMob/RevenueCat are added.
@@ -153,7 +152,7 @@ needs; the store forms in section 5 depend on the answer.
 - [x] Mining animation, rolling balance, haptics (with a Settings switch),
       accessibility and performance pass; balances always round down so they
       never look affordable when they aren't **(M7, offline part)**
-- [x] Disclaimer shown on the Mine and Settings screens
+- [x] Disclaimer shown on the first-launch intro, Mine and Settings screens
 - [x] Firebase config files and keystores are git-ignored, so they can't leak
       into the public repo
 - [x] CI runs format + analyze + tests on every push

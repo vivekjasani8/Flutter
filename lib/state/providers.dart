@@ -5,6 +5,7 @@ import '../engine/economy.dart';
 import 'game_controller.dart';
 import 'game_storage.dart';
 import 'haptics_controller.dart';
+import 'onboarding_controller.dart';
 import 'reminder_scheduler.dart';
 import 'reminders_controller.dart';
 
@@ -35,6 +36,10 @@ final reminderSchedulerProvider = Provider<ReminderScheduler>(
   (ref) => throw UnimplementedError(
       'Override reminderSchedulerProvider in main() or in the test.'),
 );
+
+/// Whether the first-launch intro has been completed.
+final onboardingProvider =
+    NotifierProvider<OnboardingController, bool>(OnboardingController.new);
 
 /// Whether vibration feedback is on (Settings switch).
 final hapticsProvider =
