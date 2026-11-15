@@ -7,8 +7,9 @@ A virtual crypto-mining idle game for Android and iOS, built with Flutter.
 
 ## Status
 
-Milestone **M0** — project scaffold, game engine and CI. See the roadmap for the
-full plan (M0–M9).
+Milestone **M1** — game engine feature-complete and fully tested (JSON save
+format, offline earnings, payback balance simulation). See [ROADMAP.md](ROADMAP.md)
+for the full plan (M0–M9).
 
 ## Project layout
 

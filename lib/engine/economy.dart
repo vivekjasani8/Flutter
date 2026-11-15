@@ -83,6 +83,63 @@ class GameState {
       playerName: 'Player',
     );
   }
+
+  /// Version of the [toJson] format. Bump it when the shape changes and teach
+  /// [fromJson] to read the old version.
+  static const int schemaVersion = 1;
+
+  /// JSON-safe map (string keys, plain values), so it can go straight into
+  /// `jsonEncode`, shared_preferences or a Firestore document.
+  Map<String, dynamic> toJson() => {
+        'v': schemaVersion,
+        'coins': coins,
+        'lifetimeCoins': lifetimeCoins,
+        'rigs': Map<String, int>.from(rigs),
+        'lastTick': lastTick,
+        'boostUntil': boostUntil,
+        'streak': streak,
+        'lastClaimDay': lastClaimDay,
+        'achievements': List<String>.from(achievements),
+        // JSON object keys must be strings.
+        'hourly': {
+          for (final e in hourly.entries) e.key.toString(): e.value,
+        },
+        'playerName': playerName,
+      };
+
+  /// Inverse of [toJson]. Tolerant of what JSON round-trips do to numbers
+  /// (a whole double such as `150.0` can come back as the int `150`) and of
+  /// saves made before a rig existed: every configured rig defaults to level 0,
+  /// and ids no longer in the config are dropped.
+  factory GameState.fromJson(Map<String, dynamic> json) {
+    final savedRigs = (json['rigs'] as Map<String, dynamic>?) ?? const {};
+    final rigLevels = _emptyRigs();
+    for (final id in rigLevels.keys) {
+      final level = savedRigs[id];
+      if (level is num) rigLevels[id] = level.toInt();
+    }
+
+    final savedHourly = (json['hourly'] as Map<String, dynamic>?) ?? const {};
+    final hourly = <int, double>{
+      for (final e in savedHourly.entries)
+        int.parse(e.key): (e.value as num).toDouble(),
+    };
+
+    final savedAchievements = (json['achievements'] as List<dynamic>?) ?? const [];
+
+    return GameState(
+      coins: (json['coins'] as num).toDouble(),
+      lifetimeCoins: (json['lifetimeCoins'] as num).toDouble(),
+      rigs: rigLevels,
+      lastTick: (json['lastTick'] as num).toInt(),
+      boostUntil: (json['boostUntil'] as num?)?.toInt() ?? 0,
+      streak: (json['streak'] as num?)?.toInt() ?? 0,
+      lastClaimDay: (json['lastClaimDay'] as String?) ?? '',
+      achievements: [for (final a in savedAchievements) a as String],
+      hourly: hourly,
+      playerName: (json['playerName'] as String?) ?? 'Player',
+    );
+  }
 }
 
 /// Every configured rig at level 0. Top-level so `rigs` resolves to the config
@@ -150,6 +207,21 @@ GameState tick(GameState s, int now) {
   ));
 }
 
+/// Coins that settling to [now] would add, without changing [s]. This is the
+/// "while you were away" figure: it follows exactly the same rules as [tick]
+/// (offline cap, boost window, backwards clock earns 0).
+double offlineEarnings(GameState s, int now) {
+  if (now <= s.lastTick) return 0;
+  return tick(s, now).lifetimeCoins - s.lifetimeCoins;
+}
+
+/// Seconds a rig's next level takes to pay for itself from its own output,
+/// i.e. cost / (hash gained x coins per TH/s), ignoring boosts.
+double paybackSeconds(String id, int currentLevel) {
+  final rig = _rigById(id);
+  return rigCost(id, currentLevel) / (rig.baseHash * coinsPerThSecond);
+}
+
 /// Buy one level of [id]. Returns null if the player cannot afford it.
 GameState? buyRig(GameState s, String id, int now) {
   final settled = tick(s, now);
@@ -175,10 +247,15 @@ String dayKey(int ms) =>
 
 double streakReward(int streak) => 100.0 * math.min(streak, 7);
 
-bool canClaimDaily(GameState s, int now) => s.lastClaimDay != dayKey(now);
+/// True only on a UTC day *after* the last claim. Comparing (not just checking
+/// "different day") stops a backwards clock from re-claiming: 'YYYY-MM-DD'
+/// keys sort chronologically as strings.
+bool canClaimDaily(GameState s, int now) =>
+    s.lastClaimDay.isEmpty || dayKey(now).compareTo(s.lastClaimDay) > 0;
 
 /// Claim the daily reward. Consecutive UTC days extend the streak; a gap resets
-/// it to 1. Returns null if already claimed today.
+/// it to 1. Returns null if already claimed today, or if the clock reads a day
+/// before the last claim.
 GameState? claimDaily(GameState s, int now) {
   if (!canClaimDaily(s, now)) return null;
   final settled = tick(s, now);
