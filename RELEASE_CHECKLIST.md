@@ -49,9 +49,10 @@ milestone that covers it.
       builds can behave differently from debug).
 - [ ] **Version numbers**: bump `version:` in `pubspec.yaml` (`0.1.0+1`) for
       every upload; the `+N` build number must always increase.
-- [ ] **Commit `pubspec.lock`**: it is currently in `.gitignore`. For an app (not
-      a package) it should be committed so CI and release builds use exactly the
-      dependency versions you tested.
+- [x] **`pubspec.lock` committed** and CI pinned to the local Flutter version
+      (3.41.6), so CI and release builds use exactly what was tested. When you
+      upgrade Flutter, fix new analyzer findings locally, then bump
+      `flutter-version` in `.github/workflows/ci.yml`.
 - [ ] **iOS build**: needs a Mac or a macOS CI runner (Codemagic or GitHub
       Actions) and an Apple Developer account. The iOS project has **never been
       built or run yet** — expect some setup (signing, CocoaPods, notification

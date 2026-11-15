@@ -10,12 +10,17 @@ jobs:
   analyze-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Pinned to the version used for development, so CI checks the same
+          # analyzer rules and (with the committed pubspec.lock) the same
+          # package versions. Upgrade deliberately: run `flutter upgrade`
+          # locally, fix any new analyzer findings, then bump this.
+          flutter-version: 3.41.6
       - run: flutter --version
-      - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed lib test
       - run: flutter analyze
       - run: flutter test

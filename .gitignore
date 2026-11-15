@@ -4,7 +4,8 @@
 build/
 .flutter-plugins
 .flutter-plugins-dependencies
-pubspec.lock
+# pubspec.lock is committed on purpose: this is an app, so CI and release
+# builds must use exactly the package versions that were tested.
 
 # IDE
 .idea/
@@ -20,4 +21,5 @@ google-services.json
 GoogleService-Info.plist
 *.keystore
 *.jks
+key.properties
 .env
