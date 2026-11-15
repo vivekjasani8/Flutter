@@ -5,6 +5,7 @@ import '../../app/haptics.dart';
 import '../../engine/config.dart';
 import '../../engine/economy.dart';
 import '../../state/providers.dart';
+import '../mine/hash_rate_card.dart';
 
 /// Every rig with its level, output, payback time and a Buy/Upgrade button.
 class ShopScreen extends ConsumerWidget {
@@ -31,6 +32,8 @@ class ShopScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Buying raises this, so show it where the player buys.
+          HashRateCard(state: s, compact: true),
           for (final rig in rigs) _RigCard(rig: rig, state: s),
         ],
       ),

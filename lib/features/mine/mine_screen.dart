@@ -6,6 +6,7 @@ import '../../app/router.dart';
 import '../../engine/config.dart';
 import '../../engine/economy.dart';
 import '../../state/providers.dart';
+import 'hash_rate_card.dart';
 import 'mining_animation.dart';
 
 /// Home tab: live balance, mining rate and the rigs the player owns.
@@ -52,13 +53,8 @@ class MineScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            '${formatNumber(totalHash(s))} TH/s  ·  '
-            '${formatNumber(baseCoinsPerSecond(s))} $coinName/s',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium,
-          ),
+          const SizedBox(height: 16),
+          HashRateCard(state: s),
           if (isBoosted(s, now)) ...[
             const SizedBox(height: 12),
             Center(
