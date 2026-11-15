@@ -7,42 +7,6 @@ import 'package:idle_miner_sim/engine/economy.dart';
 import 'support/app_harness.dart';
 import 'support/fixtures.dart';
 
-Finder navTab(String label) => find.descendant(
-      of: find.byType(NavigationBar),
-      matching: find.text(label),
-    );
-
-Future<void> openTab(WidgetTester tester, String label) async {
-  await tester.tap(navTab(label));
-  await tester.pumpAndSettle();
-}
-
-/// Walk the app through the real lifecycle sequence to the background and
-/// back, advancing the clock by [away] while it is paused.
-Future<void> backgroundFor(
-  WidgetTester tester,
-  FakeClock clock,
-  Duration away,
-) async {
-  final binding = tester.binding;
-  for (final s in [
-    AppLifecycleState.inactive,
-    AppLifecycleState.hidden,
-    AppLifecycleState.paused,
-  ]) {
-    binding.handleAppLifecycleStateChanged(s);
-  }
-  clock.advance(away);
-  for (final s in [
-    AppLifecycleState.hidden,
-    AppLifecycleState.inactive,
-    AppLifecycleState.resumed,
-  ]) {
-    binding.handleAppLifecycleStateChanged(s);
-  }
-  await tester.pumpAndSettle();
-}
-
 void main() {
   late FakeClock clock;
   setUp(() => clock = FakeClock(t0));
@@ -51,7 +15,7 @@ void main() {
       (tester) async {
     await pumpApp(tester, clock);
 
-    for (final tab in ['Mine', 'Shop', 'Stats', 'Settings']) {
+    for (final tab in ['Mine', 'Shop', 'Rewards', 'Stats', 'Settings']) {
       expect(navTab(tab), findsOneWidget);
     }
     expect(find.byKey(const ValueKey('balance')), findsOneWidget);

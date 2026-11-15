@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,13 +6,14 @@ import '../../engine/config.dart';
 import '../../state/game_controller.dart';
 import '../../state/providers.dart';
 
-/// Player name, progress reset and the "this is a game" disclaimer.
+/// Player name, reminders, progress reset and the "this is a game" disclaimer.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(gameControllerProvider);
+    final remindersOn = ref.watch(remindersProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -26,6 +28,23 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.edit_outlined),
             onTap: () => _editName(context, ref, s.playerName),
           ),
+          SwitchListTile(
+            key: const ValueKey('reminders-switch'),
+            secondary: const Icon(Icons.notifications_outlined),
+            title: const Text('Reminders'),
+            subtitle: const Text('Storage full and streak-at-risk alerts'),
+            value: remindersOn,
+            onChanged: (on) => _setReminders(context, ref, on),
+          ),
+          // Debug builds only: check that notifications fire on a phone.
+          if (kDebugMode)
+            ListTile(
+              key: const ValueKey('test-reminder'),
+              leading: const Icon(Icons.bug_report_outlined),
+              title: const Text('Send a test reminder'),
+              subtitle: const Text('Debug only · arrives in about 10 s'),
+              onTap: () => _sendTestReminder(context, ref),
+            ),
           ListTile(
             key: const ValueKey('reset-progress'),
             leading: const Icon(Icons.restart_alt),
@@ -48,6 +67,43 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _setReminders(
+    BuildContext context,
+    WidgetRef ref,
+    bool on,
+  ) async {
+    final reminders = ref.read(remindersProvider.notifier);
+    if (!on) {
+      await reminders.disable();
+      return;
+    }
+    final granted = await reminders.enable();
+    if (!granted && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Notifications are blocked for this app. Allow them in '
+            'your phone settings, then try again.'),
+      ));
+    }
+  }
+
+  Future<void> _sendTestReminder(BuildContext context, WidgetRef ref) async {
+    final reminders = ref.read(remindersProvider.notifier);
+    if (!ref.read(remindersProvider) && !await reminders.enable()) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Allow notifications first.'),
+        ));
+      }
+      return;
+    }
+    await reminders.sendTest(ref.read(clockProvider)());
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Test reminder scheduled. Leave the app to see it.'),
+      ));
+    }
   }
 
   Future<void> _editName(

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/mine/mine_screen.dart';
+import '../features/rewards/rewards_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/shop/shop_screen.dart';
 import '../features/stats/stats_screen.dart';
@@ -10,6 +11,7 @@ import 'app_shell.dart';
 abstract final class Routes {
   static const String mine = '/mine';
   static const String shop = '/shop';
+  static const String rewards = '/rewards';
   static const String stats = '/stats';
   static const String settings = '/settings';
 }
@@ -32,6 +34,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             GoRoute(
               path: Routes.shop,
               builder: (context, state) => const ShopScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.rewards,
+              builder: (context, state) => const RewardsScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [

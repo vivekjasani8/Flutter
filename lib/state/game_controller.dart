@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../engine/economy.dart';
+import '../engine/economy.dart' as engine show claimDaily;
 import 'game_storage.dart';
 import 'providers.dart';
 
@@ -74,6 +75,16 @@ class GameController extends Notifier<GameState> {
     state = next;
     _save();
     return true;
+  }
+
+  /// Claim today's daily reward. Returns the coins paid, or null if it was
+  /// already claimed today (or the clock reads a day before the last claim).
+  double? claimDaily() {
+    final next = engine.claimDaily(state, _now());
+    if (next == null) return null;
+    state = next;
+    _save();
+    return streakReward(next.streak);
   }
 
   void setPlayerName(String name) {

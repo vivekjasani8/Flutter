@@ -143,6 +143,22 @@ void main() {
     });
   });
 
+  test('claimDaily pays once per day and saves the streak', () async {
+    final prefs = await mockPrefs();
+    final c = gameContainer(prefs, clock);
+    final game = c.read(gameControllerProvider.notifier);
+
+    expect(game.claimDaily(), streakReward(1));
+    expect(
+        c.read(gameControllerProvider).coins, startingCoins + streakReward(1));
+    expect(storedGame(prefs)!.streak, 1);
+    expect(game.claimDaily(), isNull, reason: 'already claimed today');
+
+    clock.advance(const Duration(days: 1));
+    expect(game.claimDaily(), streakReward(2));
+    expect(storedGame(prefs)!.streak, 2);
+  });
+
   group('settings actions', () {
     test('setPlayerName trims, caps the length and ignores blanks', () async {
       final prefs = await mockPrefs();

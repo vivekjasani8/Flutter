@@ -7,18 +7,22 @@ A virtual crypto-mining idle game for Android and iOS, built with Flutter.
 
 ## Status
 
-Milestone **M2** — playable single-device game: Mine, Shop, Stats and Settings
-screens, local save, and a "while you were away" summary. No backend yet. See
-[ROADMAP.md](ROADMAP.md) for the full plan (M0–M9).
+**Local-only build.** Done: M0–M2 and **M5** — Mine, Shop, Rewards (daily
+streak + achievements), Stats and Settings; local save; "while you were away";
+opt-in reminders for "storage full" and "streak at risk". The online milestones
+(M3 accounts/cloud save, M4 leaderboard, M6 ads/purchases) are deferred. See
+[ROADMAP.md](ROADMAP.md) for the full plan and
+[RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for what must happen before a
+store release.
 
 ## Project layout
 
 ```
 lib/
   engine/      pure Dart game rules (no Flutter imports) — unit tested
-  state/       GameController (Riverpod) + shared_preferences save/load
-  app/         app root, go_router routes, bottom-nav shell, away dialog
-  features/    mine/ shop/ stats/ settings/ screens
+  state/       GameController (Riverpod), save/load, reminder planning
+  app/         app root, go_router routes, bottom-nav shell, dialogs
+  features/    mine/ shop/ rewards/ stats/ settings/ screens
   main.dart    app entry (loads preferences, starts ProviderScope)
 test/          engine, state and widget tests (support/ has shared helpers)
 .github/workflows/ci.yml   format + analyze + test on every push

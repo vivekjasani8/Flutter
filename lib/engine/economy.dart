@@ -285,8 +285,7 @@ bool canClaimDaily(GameState s, int now) =>
 GameState? claimDaily(GameState s, int now) {
   if (!canClaimDaily(s, now)) return null;
   final settled = tick(s, now);
-  final yesterday = dayKey(now - 24 * _hourMs);
-  final streak = settled.lastClaimDay == yesterday ? settled.streak + 1 : 1;
+  final streak = nextClaimStreak(settled, now);
   final reward = streakReward(streak);
   return withAchievements(settled.copyWith(
     streak: streak,
@@ -294,6 +293,38 @@ GameState? claimDaily(GameState s, int now) {
     coins: settled.coins + reward,
     lifetimeCoins: settled.lifetimeCoins + reward,
   ));
+}
+
+const int _dayMs = 24 * _hourMs;
+
+/// Start (00:00 UTC) of the day containing [ms].
+int _dayStart(int ms) => (ms ~/ _dayMs) * _dayMs;
+
+/// The streak the player would have after claiming at [now]: one more if they
+/// claimed yesterday (UTC), otherwise a fresh start at 1.
+int nextClaimStreak(GameState s, int now) =>
+    s.lastClaimDay == dayKey(now - _dayMs) ? s.streak + 1 : 1;
+
+/// The streak as it stands at [now]. It survives while the last claim was
+/// today or yesterday; after a missed day it reads 0 (the next claim starts
+/// again at 1).
+int activeStreak(GameState s, int now) {
+  if (s.lastClaimDay.isEmpty) return 0;
+  return s.lastClaimDay.compareTo(dayKey(now - _dayMs)) >= 0 ? s.streak : 0;
+}
+
+/// Milliseconds until the next UTC day starts, when a new claim opens.
+int msUntilNextDay(int now) => _dayStart(now) + _dayMs - now;
+
+/// When the rigs' offline storage is full: the last settle plus the cap.
+int storageFullAt(GameState s) => s.lastTick + offlineCapSeconds * 1000;
+
+/// When the streak breaks if the player doesn't claim: the end of the UTC day
+/// after the last claim. Null if they have never claimed.
+int? streakDeadline(GameState s) {
+  if (s.lastClaimDay.isEmpty) return null;
+  final claimed = DateTime.parse('${s.lastClaimDay}T00:00:00Z');
+  return claimed.millisecondsSinceEpoch + 2 * _dayMs;
 }
 
 List<String> _earnedAchievements(GameState s) {

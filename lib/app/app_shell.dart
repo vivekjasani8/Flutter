@@ -4,13 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../engine/config.dart';
 import '../state/game_controller.dart';
 import '../state/providers.dart';
+import '../state/reminders_controller.dart';
 import 'away_dialog.dart';
+import 'reminder_prompt.dart';
 
-/// Bottom-navigation frame around the four tabs. It also forwards app
-/// lifecycle events to the [GameController] and shows the "while you were
-/// away" dialog on launch and when the app returns from the background.
+/// Bottom-navigation frame around the tabs. It also:
+/// - forwards app lifecycle events to the [GameController] (settle + save)
+///   and the [RemindersController] (schedule on pause, cancel on resume);
+/// - shows the "while you were away" dialog on launch and on resume;
+/// - announces newly unlocked achievements.
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key, required this.shell});
 
@@ -24,16 +29,19 @@ class _AppShellState extends ConsumerState<AppShell> {
   late final AppLifecycleListener _lifecycle;
 
   GameController get _game => ref.read(gameControllerProvider.notifier);
+  RemindersController get _reminders => ref.read(remindersProvider.notifier);
 
   @override
   void initState() {
     super.initState();
     _lifecycle = AppLifecycleListener(
-      onPause: () => _game.onPaused(),
-      onResume: () => _showAway(_game.onResumed()),
+      onPause: _onPause,
+      onResume: _onResume,
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _showAway(_game.takeAwayReport());
+      if (!mounted) return;
+      unawaited(_reminders.onAppResumed()); // the player is here now
+      unawaited(_showAway(_game.takeAwayReport()));
     });
   }
 
@@ -43,13 +51,52 @@ class _AppShellState extends ConsumerState<AppShell> {
     super.dispose();
   }
 
-  void _showAway(AwayReport? report) {
-    if (report == null || !mounted) return;
-    unawaited(showAwayDialog(context, report));
+  void _onPause() {
+    _game.onPaused();
+    unawaited(_reminders.onAppPaused(
+      ref.read(gameControllerProvider),
+      ref.read(clockProvider)(),
+    ));
   }
+
+  void _onResume() {
+    unawaited(_reminders.onAppResumed());
+    unawaited(_showAway(_game.onResumed()));
+  }
+
+  Future<void> _showAway(AwayReport? report) async {
+    if (report == null || !mounted) return;
+    await showAwayDialog(context, report);
+    if (mounted) {
+      await maybeOfferReminders(context, ref, ReminderReason.storage);
+    }
+  }
+
+  void _announceAchievements(List<String>? before, List<String> after) {
+    // Null on first build; shorter after a reset. Only celebrate additions.
+    if (before == null || after.length <= before.length) return;
+    final titles = [
+      for (final a in achievements)
+        if (after.contains(a.id) && !before.contains(a.id)) a.title,
+    ];
+    if (titles.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Achievement unlocked: ${titles.join(', ')}'),
+      action: SnackBarAction(
+        label: 'View',
+        onPressed: () => widget.shell.goBranch(_rewardsTab),
+      ),
+    ));
+  }
+
+  static const int _rewardsTab = 2;
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<List<String>>(
+      gameControllerProvider.select((s) => s.achievements),
+      _announceAchievements,
+    );
     final shell = widget.shell;
     return Scaffold(
       body: shell,
@@ -68,6 +115,11 @@ class _AppShellState extends ConsumerState<AppShell> {
             icon: Icon(Icons.storefront_outlined),
             selectedIcon: Icon(Icons.storefront),
             label: 'Shop',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.emoji_events_outlined),
+            selectedIcon: Icon(Icons.emoji_events),
+            label: 'Rewards',
           ),
           NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),

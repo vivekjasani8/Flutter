@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../engine/economy.dart';
 import 'game_controller.dart';
 import 'game_storage.dart';
+import 'reminder_scheduler.dart';
+import 'reminders_controller.dart';
 
 /// Loaded once in `main()` and injected with `overrideWithValue`, so the rest
 /// of the app can read preferences synchronously.
@@ -26,3 +28,13 @@ final gameStorageProvider = Provider<GameStorage>(
 /// for actions such as buying rigs.
 final gameControllerProvider =
     NotifierProvider<GameController, GameState>(GameController.new);
+
+/// Created (and the plugin initialised) in `main()`; tests inject a fake.
+final reminderSchedulerProvider = Provider<ReminderScheduler>(
+  (ref) => throw UnimplementedError(
+      'Override reminderSchedulerProvider in main() or in the test.'),
+);
+
+/// Whether reminders are on. Use `.notifier` to enable/disable and schedule.
+final remindersProvider =
+    NotifierProvider<RemindersController, bool>(RemindersController.new);
