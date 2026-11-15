@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../engine/economy.dart';
 import 'game_controller.dart';
 import 'game_storage.dart';
+import 'haptics_controller.dart';
 import 'reminder_scheduler.dart';
 import 'reminders_controller.dart';
 
@@ -34,6 +35,10 @@ final reminderSchedulerProvider = Provider<ReminderScheduler>(
   (ref) => throw UnimplementedError(
       'Override reminderSchedulerProvider in main() or in the test.'),
 );
+
+/// Whether vibration feedback is on (Settings switch).
+final hapticsProvider =
+    NotifierProvider<HapticsController, bool>(HapticsController.new);
 
 /// Whether reminders are on. Use `.notifier` to enable/disable and schedule.
 final remindersProvider =

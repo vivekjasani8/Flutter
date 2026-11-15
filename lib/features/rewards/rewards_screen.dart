@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/haptics.dart';
 import '../../app/reminder_prompt.dart';
 import '../../engine/config.dart';
 import '../../engine/economy.dart';
@@ -36,18 +37,32 @@ class RewardsScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 8),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 1.25,
-            children: [
-              for (final a in achievements)
-                _AchievementTile(def: a, unlocked: unlocked.contains(a.id)),
-            ],
-          ),
+          // Two per row, each row as tall as its tallest tile, so tiles grow
+          // with large fonts instead of overflowing a fixed-size grid cell.
+          for (var i = 0; i < achievements.length; i += 2)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final a in achievements.skip(i).take(2)) ...[
+                      if (a != achievements[i]) const SizedBox(width: 8),
+                      Expanded(
+                        child: _AchievementTile(
+                          def: a,
+                          unlocked: unlocked.contains(a.id),
+                        ),
+                      ),
+                    ],
+                    if (i + 1 >= achievements.length) ...[
+                      const SizedBox(width: 8),
+                      const Expanded(child: SizedBox()),
+                    ],
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -142,6 +157,7 @@ class _DailyRewardCard extends ConsumerWidget {
   Future<void> _claim(BuildContext context, WidgetRef ref) async {
     final paid = ref.read(gameControllerProvider.notifier).claimDaily();
     if (paid == null) return;
+    Haptics.reward(ref);
     final day = ref.read(gameControllerProvider).streak;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('+${formatNumber(paid)} $coinName · day $day streak'),
@@ -167,23 +183,38 @@ class _DayChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 2),
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color:
-            current ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-        border: current ? Border.all(color: scheme.primary) : null,
-      ),
-      child: Column(
-        children: [
-          Text('D$day', style: text.labelSmall),
-          const SizedBox(height: 2),
-          done
-              ? Icon(Icons.check, size: 16, color: scheme.primary)
-              : Text(formatNumber(reward), style: text.labelSmall),
-        ],
+    final status = done
+        ? 'claimed'
+        : current
+            ? 'next'
+            : 'upcoming';
+    return Semantics(
+      label: 'Day $day, ${formatNumber(reward)} $coinName, $status',
+      excludeSemantics: true,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+        decoration: BoxDecoration(
+          color: current
+              ? scheme.primaryContainer
+              : scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
+          border: current ? Border.all(color: scheme.primary) : null,
+        ),
+        // Seven chips share one row: shrink text rather than overflow when
+        // the player uses a large font size.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            children: [
+              Text('D$day', style: text.labelSmall),
+              const SizedBox(height: 2),
+              done
+                  ? Icon(Icons.check, size: 16, color: scheme.primary)
+                  : Text(formatNumber(reward), style: text.labelSmall),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -213,29 +244,38 @@ class _AchievementTile extends StatelessWidget {
       label: '${def.title}, ${unlocked ? 'unlocked' : 'locked'}. '
           '${def.description}',
       excludeSemantics: true,
+      // Locked tiles use quieter colours, never transparency, so their text
+      // still meets contrast guidelines.
       child: Card(
         key: ValueKey('achievement-${def.id}'),
+        margin: EdgeInsets.zero,
         color: unlocked ? scheme.secondaryContainer : null,
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Opacity(
-            opacity: unlocked ? 1 : 0.5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(unlocked ? _icons[def.id] ?? Icons.star : Icons.lock,
-                    color: unlocked ? scheme.primary : scheme.outline),
-                const Spacer(),
-                Text(def.title,
-                    style: text.titleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-                Text(def.description,
-                    style: text.bodySmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis),
-              ],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(unlocked ? _icons[def.id] ?? Icons.star : Icons.lock,
+                  color: unlocked ? scheme.primary : scheme.outline),
+              const SizedBox(height: 8),
+              Text(
+                def.title,
+                style: text.titleSmall?.copyWith(
+                  color: unlocked
+                      ? scheme.onSecondaryContainer
+                      : scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                def.description,
+                style: text.bodySmall?.copyWith(
+                  color: unlocked
+                      ? scheme.onSecondaryContainer
+                      : scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
         ),
       ),

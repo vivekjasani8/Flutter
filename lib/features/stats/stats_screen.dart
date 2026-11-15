@@ -57,12 +57,29 @@ class _StatRow extends StatelessWidget {
   final String label;
   final String value;
 
+  // Not a ListTile: its trailing slot can't wrap, so a long value at large
+  // font sizes would overflow. Here both sides share the width and wrap.
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(label),
-      trailing: Text(value, style: Theme.of(context).textTheme.titleMedium),
+    final text = Theme.of(context).textTheme;
+    return MergeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: Text(label, style: text.bodyLarge)),
+            const SizedBox(width: 16),
+            Flexible(
+              child: Text(
+                value,
+                style: text.titleMedium,
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -96,6 +113,25 @@ class _EarningsChart extends StatelessWidget {
       );
     }
 
+    final total = history.fold<double>(0, (sum, h) => sum + h.coins);
+    final best = history.reduce((a, b) => a.coins >= b.coins ? a : b);
+    final bestHour = DateTime.fromMillisecondsSinceEpoch(best.hourStart).hour;
+
+    // Screen readers get a one-line summary instead of 24 unlabeled bars.
+    return Semantics(
+      label: 'Earnings chart, last 24 hours. Total ${formatNumber(total)} '
+          '$coinName. Best hour ${bestHour.toString().padLeft(2, '0')}:00 '
+          'with ${formatNumber(best.coins)} $coinName.',
+      excludeSemantics: true,
+      child: RepaintBoundary(child: _chart(theme, maxCoins, bottomTitle)),
+    );
+  }
+
+  Widget _chart(
+    ThemeData theme,
+    double maxCoins,
+    Widget Function(double, TitleMeta) bottomTitle,
+  ) {
     return BarChart(
       BarChartData(
         maxY: maxCoins * 1.15,

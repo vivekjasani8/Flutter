@@ -6,6 +6,7 @@ import '../../app/router.dart';
 import '../../engine/config.dart';
 import '../../engine/economy.dart';
 import '../../state/providers.dart';
+import 'mining_animation.dart';
 
 /// Home tab: live balance, mining rate and the rigs the player owns.
 class MineScreen extends ConsumerWidget {
@@ -26,17 +27,30 @@ class MineScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Text(
-            '$coinName balance',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.labelLarge,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            formatNumber(s.coins),
-            key: const ValueKey('balance'),
-            textAlign: TextAlign.center,
-            style: theme.textTheme.displayMedium,
+          Center(child: MiningAnimation(hashRate: totalHash(s))),
+          const SizedBox(height: 16),
+          // One screen-reader node for "SimCoin balance, 1.2K" instead of
+          // two, and not a live region: it changes every second.
+          Semantics(
+            label: '$coinName balance',
+            value: formatNumber(s.coins),
+            excludeSemantics: true,
+            child: Column(
+              children: [
+                Text(
+                  '$coinName balance',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelLarge,
+                ),
+                const SizedBox(height: 8),
+                RollingNumber(
+                  key: const ValueKey('balance'),
+                  value: s.coins,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.displayMedium,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           Text(

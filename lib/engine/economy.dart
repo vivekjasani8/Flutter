@@ -358,22 +358,36 @@ int score(GameState s) => s.lifetimeCoins.floor();
 
 /// Compact number formatting, e.g. 12_500 -> "12.5K", 2_000_000 -> "2.0M".
 /// Plain values under 10 keep 2 decimals; suffixed values always show 1.
+///
+/// Always rounds **down**, so a balance never reads as more than the player
+/// has: 99.5 shows "99" (not "100", which would look affordable for a
+/// 100-coin rig) and 999_960 shows "999.9K" (not "1000.0K").
 String formatNumber(double n) {
-  final abs = n.abs();
+  if (!n.isFinite) return '0';
   const units = ['', 'K', 'M', 'B', 'T'];
   var i = 0;
-  var v = abs;
+  var v = n.abs();
   while (v >= 1000 && i < units.length - 1) {
     v /= 1000;
     i++;
   }
-  final String out;
-  if (i == 0) {
-    out = v.toStringAsFixed(v < 10 && v % 1 != 0 ? 2 : 0);
+  final int decimals;
+  if (i > 0) {
+    decimals = 1;
+  } else if (v < 10 && _floorTo(v, 2) % 1 != 0) {
+    decimals = 2;
   } else {
-    out = v.toStringAsFixed(1);
+    decimals = 0;
   }
+  final out = _floorTo(v, decimals).toStringAsFixed(decimals);
   return (n < 0 ? '-' : '') + out + units[i];
+}
+
+/// [v] rounded down to [decimals] places. The tiny epsilon absorbs float
+/// noise such as 0.29 * 100 == 28.999999999999996.
+double _floorTo(double v, int decimals) {
+  final f = math.pow(10, decimals);
+  return (v * f + 1e-9).floor() / f;
 }
 
 /// Short human duration, two units at most: "45s", "16m 40s", "5h 33m",

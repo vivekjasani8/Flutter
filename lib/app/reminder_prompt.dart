@@ -22,6 +22,7 @@ Future<void> maybeOfferReminders(
   final wantsThem = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
+      scrollable: true,
       icon: const Icon(Icons.notifications_active_outlined),
       title: const Text('Want a reminder?'),
       content: Text(switch (reason) {

@@ -12,6 +12,7 @@ Future<void> showAwayDialog(BuildContext context, AwayReport report) {
     builder: (context) {
       final theme = Theme.of(context);
       return AlertDialog(
+        scrollable: true,
         icon: const Icon(Icons.nightlight_round),
         title: const Text('While you were away'),
         content: Column(

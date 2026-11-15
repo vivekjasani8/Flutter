@@ -20,9 +20,17 @@ void main() {
     }
     expect(find.byKey(const ValueKey('balance')), findsOneWidget);
     expect(find.text(formatNumber(startingCoins)), findsOneWidget);
-    expect(find.text(appDisclaimer), findsOneWidget);
-    expect(find.text('Go to Shop'), findsOneWidget);
     expect(find.text('While you were away'), findsNothing);
+    await tester.scrollUntilVisible(
+      find.text('Go to Shop'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.scrollUntilVisible(
+      find.text(appDisclaimer),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
   });
 
   testWidgets('buying and upgrading rigs in the Shop', (tester) async {

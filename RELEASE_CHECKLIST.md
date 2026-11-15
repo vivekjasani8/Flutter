@@ -114,10 +114,14 @@ needs; the store forms in section 5 depend on the answer.
 
 ## 6. Quality pass before release **(M7)**
 
-- [ ] Test on a **mid-range Android phone** in a **release** build: no jank,
-      battery use OK while open (the game ticks once per second).
-- [ ] **Accessibility**: screen-reader labels on buttons/icons, text contrast,
-      large font sizes don't break layouts.
+- [x] Smooth in a **profile** (release-speed) build on a real Android phone;
+      hidden tabs don't rebuild or animate. **Re-check** in the final signed
+      release build, and on a low-end phone if you can borrow one.
+- [ ] Battery use while open over ~30 min (the game ticks once per second).
+- [x] **Accessibility**: screen-reader labels, text contrast and tap targets
+      pass Flutter's guideline checks on every tab; layouts tested at 2× font
+      on a small phone; "Remove animations" respected. Still worth a manual
+      pass with **TalkBack** (Android) and **VoiceOver** (iOS) before release.
 - [ ] **Notifications**: permission is asked at a sensible moment (not on
       launch); reminders fire on Android 13+ after a reboot; iOS permission
       prompt works. Remove or keep hidden any **debug-only** test buttons
@@ -146,6 +150,9 @@ needs; the store forms in section 5 depend on the answer.
 - [x] Daily streak claim, achievements grid, opt-in local reminders; permission
       asked after the first claim or offline collect, not on launch; test
       reminder button is debug-only **(M5)**
+- [x] Mining animation, rolling balance, haptics (with a Settings switch),
+      accessibility and performance pass; balances always round down so they
+      never look affordable when they aren't **(M7, offline part)**
 - [x] Disclaimer shown on the Mine and Settings screens
 - [x] Firebase config files and keystores are git-ignored, so they can't leak
       into the public repo

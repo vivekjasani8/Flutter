@@ -94,12 +94,23 @@ ProviderContainer gameContainer(
 }
 
 /// Launch the full app with a fake clock and the given saved data.
+///
+/// By default the OS "remove animations" setting is on, so the endless
+/// mining spinner doesn't keep `pumpAndSettle` waiting forever. Pass
+/// `animations: true` to test the animations themselves.
 Future<SharedPreferences> pumpApp(
   WidgetTester tester,
   FakeClock clock, {
   Map<String, Object> saved = const {},
   ReminderScheduler? reminders,
+  bool animations = false,
+  bool settle = true,
 }) async {
+  if (!animations) {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+  }
   final prefs = await mockPrefs(saved);
   await tester.pumpWidget(
     ProviderScope(
@@ -107,7 +118,11 @@ Future<SharedPreferences> pumpApp(
       child: const IdleMinerApp(),
     ),
   );
-  await tester.pumpAndSettle();
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    await tester.pump();
+  }
   return prefs;
 }
 

@@ -7,10 +7,12 @@ A virtual crypto-mining idle game for Android and iOS, built with Flutter.
 
 ## Status
 
-**Local-only build.** Done: M0–M2 and **M5** — Mine, Shop, Rewards (daily
-streak + achievements), Stats and Settings; local save; "while you were away";
-opt-in reminders for "storage full" and "streak at risk". The online milestones
-(M3 accounts/cloud save, M4 leaderboard, M6 ads/purchases) are deferred. See
+**Local-only build.** Done: M0–M2, **M5** and the offline part of **M7** —
+Mine, Shop, Rewards (daily streak + achievements), Stats and Settings; local
+save; "while you were away"; opt-in reminders; mining animation, haptics,
+accessibility and a performance pass. The online milestones (M3 accounts/cloud
+save, M4 leaderboard, M6 ads/purchases, and M7's Crashlytics + Remote Config)
+are deferred. See
 [ROADMAP.md](ROADMAP.md) for the full plan and
 [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for what must happen before a
 store release.

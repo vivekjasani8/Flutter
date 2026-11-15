@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/haptics.dart';
 import '../../engine/config.dart';
 import '../../engine/economy.dart';
 import '../../state/providers.dart';
@@ -87,8 +88,12 @@ class _RigCard extends ConsumerWidget {
               child: FilledButton(
                 key: ValueKey('buy-${rig.id}'),
                 onPressed: affordable
-                    ? () =>
-                        ref.read(gameControllerProvider.notifier).buy(rig.id)
+                    ? () {
+                        final bought = ref
+                            .read(gameControllerProvider.notifier)
+                            .buy(rig.id);
+                        if (bought) Haptics.purchase(ref);
+                      }
                     : null,
                 child: Text(
                   '${level == 0 ? 'Buy' : 'Upgrade'}  ·  '

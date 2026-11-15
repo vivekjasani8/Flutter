@@ -36,6 +36,14 @@ class SettingsScreen extends ConsumerWidget {
             value: remindersOn,
             onChanged: (on) => _setReminders(context, ref, on),
           ),
+          SwitchListTile(
+            key: const ValueKey('haptics-switch'),
+            secondary: const Icon(Icons.vibration),
+            title: const Text('Vibration'),
+            subtitle: const Text('Feedback when you buy, claim or unlock'),
+            value: ref.watch(hapticsProvider),
+            onChanged: (on) => ref.read(hapticsProvider.notifier).set(on),
+          ),
           // Debug builds only: check that notifications fire on a phone.
           if (kDebugMode)
             ListTile(
@@ -124,6 +132,7 @@ class SettingsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         title: const Text('Reset progress?'),
         content: const Text(
           'This deletes your $coinName, rigs and achievements on this device. '
@@ -176,6 +185,7 @@ class _NameDialogState extends State<_NameDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      scrollable: true,
       title: const Text('Player name'),
       content: TextField(
         key: const ValueKey('name-field'),

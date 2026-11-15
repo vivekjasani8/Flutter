@@ -9,6 +9,7 @@ import '../state/game_controller.dart';
 import '../state/providers.dart';
 import '../state/reminders_controller.dart';
 import 'away_dialog.dart';
+import 'haptics.dart';
 import 'reminder_prompt.dart';
 
 /// Bottom-navigation frame around the tabs. It also:
@@ -80,6 +81,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         if (after.contains(a.id) && !before.contains(a.id)) a.title,
     ];
     if (titles.isEmpty) return;
+    Haptics.achievement(ref);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Achievement unlocked: ${titles.join(', ')}'),
       action: SnackBarAction(
@@ -103,8 +105,10 @@ class _AppShellState extends ConsumerState<AppShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
         // Tapping the current tab again returns it to its first page.
-        onDestinationSelected: (i) =>
-            shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        onDestinationSelected: (i) {
+          if (i != shell.currentIndex) Haptics.tab(ref);
+          shell.goBranch(i, initialLocation: i == shell.currentIndex);
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.memory_outlined),
