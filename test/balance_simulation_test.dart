@@ -34,7 +34,8 @@ void main() {
       final times = [for (final r in rigs) simulatePaybackSeconds(r.id)];
       for (var i = 1; i < times.length; i++) {
         expect(times[i], greaterThan(times[i - 1]),
-            reason: '${rigs[i].id} should pay back slower than ${rigs[i - 1].id}');
+            reason:
+                '${rigs[i].id} should pay back slower than ${rigs[i - 1].id}');
       }
     });
 
@@ -42,8 +43,7 @@ void main() {
       const step = 10;
       for (final r in rigs) {
         final simulated = simulatePaybackSeconds(r.id, stepSeconds: step);
-        expect(simulated, closeTo(paybackSeconds(r.id, 0), step),
-            reason: r.id);
+        expect(simulated, closeTo(paybackSeconds(r.id, 0), step), reason: r.id);
       }
     });
 
@@ -51,7 +51,8 @@ void main() {
       // Every rig must be able to earn back its price within the 8 h cap,
       // otherwise an idle player could never afford the next one offline.
       for (final r in rigs) {
-        expect(paybackSeconds(r.id, 0), lessThan(offlineCapSeconds), reason: r.id);
+        expect(paybackSeconds(r.id, 0), lessThan(offlineCapSeconds),
+            reason: r.id);
       }
     });
   });

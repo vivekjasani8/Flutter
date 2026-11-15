@@ -78,7 +78,8 @@ class _MineScreenState extends State<MineScreen> {
             const Spacer(),
             FilledButton(
               onPressed: _buyFirstRig,
-              child: Text('Buy CPU Rack (Lv $level)  —  ${formatNumber(cost)} $coinName'),
+              child: Text(
+                  'Buy CPU Rack (Lv $level)  —  ${formatNumber(cost)} $coinName'),
             ),
             const SizedBox(height: 24),
             Text(

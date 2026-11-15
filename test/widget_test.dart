@@ -14,7 +14,8 @@ void main() {
     expect(find.text(appDisclaimer), findsOneWidget);
   });
 
-  testWidgets('buying a CPU rack raises its level', (WidgetTester tester) async {
+  testWidgets('buying a CPU rack raises its level',
+      (WidgetTester tester) async {
     await tester.pumpWidget(const IdleMinerApp());
 
     expect(find.textContaining('Lv 0'), findsOneWidget);

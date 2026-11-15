@@ -7,8 +7,8 @@ import 'package:idle_miner_sim/engine/economy.dart';
 import 'support/fixtures.dart';
 
 /// Encode to a JSON string and back, the way shared_preferences will store it.
-GameState roundTrip(GameState s) =>
-    GameState.fromJson(jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
+GameState roundTrip(GameState s) => GameState.fromJson(
+    jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
 
 /// A state with every field away from its default.
 GameState playedState() {
@@ -58,7 +58,8 @@ void main() {
       final json = playedState().toJson();
       expect(json['v'], GameState.schemaVersion);
       // Hour buckets become string keys; jsonEncode would throw otherwise.
-      expect((json['hourly'] as Map<String, dynamic>).keys, everyElement(isA<String>()));
+      expect((json['hourly'] as Map<String, dynamic>).keys,
+          everyElement(isA<String>()));
       expect(() => jsonEncode(json), returnsNormally);
     });
   });

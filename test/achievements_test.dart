@@ -13,14 +13,18 @@ void main() {
     });
 
     test('hash_100 unlocks at exactly 100 TH/s, not before', () {
-      expect(earnedBy(stateWith(rigLevels: {'cpu': 99})), isNot(contains('hash_100')));
-      expect(earnedBy(stateWith(rigLevels: {'cpu': 100})), contains('hash_100'));
+      expect(earnedBy(stateWith(rigLevels: {'cpu': 99})),
+          isNot(contains('hash_100')));
+      expect(
+          earnedBy(stateWith(rigLevels: {'cpu': 100})), contains('hash_100'));
     });
 
     test('hash_1000 unlocks at 1,000 TH/s', () {
       // 5 farms = 1,000 TH/s.
-      expect(earnedBy(stateWith(rigLevels: {'farm': 4})), isNot(contains('hash_1000')));
-      expect(earnedBy(stateWith(rigLevels: {'farm': 5})), contains('hash_1000'));
+      expect(earnedBy(stateWith(rigLevels: {'farm': 4})),
+          isNot(contains('hash_1000')));
+      expect(
+          earnedBy(stateWith(rigLevels: {'farm': 5})), contains('hash_1000'));
     });
 
     test('coins_10k and coins_1m track lifetime coins, not the balance', () {
@@ -55,7 +59,8 @@ void main() {
 
     test('all_rigs needs at least one of every rig', () {
       final allButOne = {for (final r in rigs.skip(1)) r.id: 1};
-      expect(earnedBy(stateWith(rigLevels: allButOne)), isNot(contains('all_rigs')));
+      expect(earnedBy(stateWith(rigLevels: allButOne)),
+          isNot(contains('all_rigs')));
       final all = {for (final r in rigs) r.id: 1};
       expect(earnedBy(stateWith(rigLevels: all)), contains('all_rigs'));
     });

@@ -27,7 +27,8 @@ void main() {
     test('matches what tick actually pays', () {
       final s = stateWith(rigLevels: {'cpu': 2, 'gpu': 1});
       const now = t0 + 5 * hourMs + 123;
-      expect(offlineEarnings(s, now), closeTo(tick(s, now).coins - s.coins, 1e-9));
+      expect(
+          offlineEarnings(s, now), closeTo(tick(s, now).coins - s.coins, 1e-9));
     });
 
     test('counts the boosted part of the absence at 2x', () {

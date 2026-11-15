@@ -72,7 +72,9 @@ const List<AchievementDef> achievements = [
       title: 'Simillionaire',
       description: 'Earn 1,000,000 lifetime SimCoin'),
   AchievementDef(
-      id: 'streak_7', title: 'Week Warrior', description: 'Reach a 7 day streak'),
+      id: 'streak_7',
+      title: 'Week Warrior',
+      description: 'Reach a 7 day streak'),
   AchievementDef(
       id: 'all_rigs', title: 'Full Stack', description: 'Own every rig type'),
 ];

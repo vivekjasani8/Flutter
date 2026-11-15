@@ -39,7 +39,8 @@ void main() {
       s = activateBoost(s, t0);
       // 10 s inside the stacked window earns exactly 2x, not 6x.
       final after = tick(s, t0 + 10 * secondMs);
-      expect(after.coins - s.coins, closeTo(cpuRate * 10 * boostMultiplier, 1e-9));
+      expect(
+          after.coins - s.coins, closeTo(cpuRate * 10 * boostMultiplier, 1e-9));
     });
 
     test('stacked boosts pay 2x for their combined length, then 1x', () {

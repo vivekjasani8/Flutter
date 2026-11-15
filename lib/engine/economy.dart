@@ -125,7 +125,8 @@ class GameState {
         int.parse(e.key): (e.value as num).toDouble(),
     };
 
-    final savedAchievements = (json['achievements'] as List<dynamic>?) ?? const [];
+    final savedAchievements =
+        (json['achievements'] as List<dynamic>?) ?? const [];
 
     return GameState(
       coins: (json['coins'] as num).toDouble(),
@@ -155,7 +156,8 @@ RigDef _rigById(String id) {
 
 /// Cost to buy the next level (currentLevel -> currentLevel + 1).
 double rigCost(String id, int currentLevel) {
-  return (_rigById(id).baseCost * math.pow(costGrowth, currentLevel)).ceilToDouble();
+  return (_rigById(id).baseCost * math.pow(costGrowth, currentLevel))
+      .ceilToDouble();
 }
 
 double totalHash(GameState s) {
@@ -242,8 +244,9 @@ GameState activateBoost(GameState s, int now) {
   return settled.copyWith(boostUntil: start + boostDurationMs);
 }
 
-String dayKey(int ms) =>
-    DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true).toIso8601String().substring(0, 10);
+String dayKey(int ms) => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true)
+    .toIso8601String()
+    .substring(0, 10);
 
 double streakReward(int streak) => 100.0 * math.min(streak, 7);
 
@@ -290,7 +293,8 @@ List<String> _earnedAchievements(GameState s) {
 /// Return [s] with any newly earned achievements appended.
 GameState withAchievements(GameState s) {
   final have = s.achievements.toSet();
-  final next = _earnedAchievements(s).where((id) => !have.contains(id)).toList();
+  final next =
+      _earnedAchievements(s).where((id) => !have.contains(id)).toList();
   if (next.isEmpty) return s;
   return s.copyWith(achievements: [...s.achievements, ...next]);
 }
