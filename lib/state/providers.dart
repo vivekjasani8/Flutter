@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../engine/economy.dart';
+import 'cloud/cloud_auth.dart';
+import 'cloud/cloud_store.dart';
+import 'cloud/cloud_sync_controller.dart';
 import 'game_controller.dart';
 import 'game_storage.dart';
 import 'haptics_controller.dart';
@@ -36,6 +39,19 @@ final reminderSchedulerProvider = Provider<ReminderScheduler>(
   (ref) => throw UnimplementedError(
       'Override reminderSchedulerProvider in main() or in the test.'),
 );
+
+/// Accounts for cloud save. Defaults to "unavailable" so tests and devices
+/// without Firebase simply save on the device; `main()` injects Firebase.
+final cloudAuthProvider =
+    Provider<CloudAuth>((ref) => const UnavailableCloudAuth());
+
+/// Where cloud saves live. Same default as [cloudAuthProvider].
+final cloudStoreProvider =
+    Provider<CloudSaveStore>((ref) => const UnavailableCloudSaveStore());
+
+/// Sign-in state and background sync of the game to the cloud.
+final cloudSyncProvider = NotifierProvider<CloudSyncController, CloudSyncState>(
+    CloudSyncController.new);
 
 /// Whether the first-launch intro has been completed.
 final onboardingProvider =

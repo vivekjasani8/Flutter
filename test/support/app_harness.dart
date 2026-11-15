@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idle_miner_sim/app/app.dart';
 import 'package:idle_miner_sim/engine/economy.dart';
+import 'package:idle_miner_sim/state/cloud/cloud_auth.dart';
+import 'package:idle_miner_sim/state/cloud/cloud_store.dart';
 import 'package:idle_miner_sim/state/game_storage.dart';
 import 'package:idle_miner_sim/state/onboarding_controller.dart';
 import 'package:idle_miner_sim/state/providers.dart';
@@ -67,16 +69,22 @@ class FakeReminderScheduler implements ReminderScheduler {
   }
 }
 
+/// Cloud is "unavailable" unless a test passes fakes, exactly like a device
+/// where Firebase didn't start.
 List<Override> appOverrides(
   SharedPreferences prefs,
   FakeClock clock, {
   ReminderScheduler? reminders,
+  CloudAuth? cloudAuth,
+  CloudSaveStore? cloudStore,
 }) =>
     [
       sharedPreferencesProvider.overrideWithValue(prefs),
       clockProvider.overrideWithValue(clock.call),
       reminderSchedulerProvider
           .overrideWithValue(reminders ?? FakeReminderScheduler()),
+      if (cloudAuth != null) cloudAuthProvider.overrideWithValue(cloudAuth),
+      if (cloudStore != null) cloudStoreProvider.overrideWithValue(cloudStore),
     ];
 
 /// A provider container for controller tests. Disposed after the test unless
@@ -86,9 +94,12 @@ ProviderContainer gameContainer(
   FakeClock clock, {
   bool autoDispose = true,
   ReminderScheduler? reminders,
+  CloudAuth? cloudAuth,
+  CloudSaveStore? cloudStore,
 }) {
   final c = ProviderContainer(
-    overrides: appOverrides(prefs, clock, reminders: reminders),
+    overrides: appOverrides(prefs, clock,
+        reminders: reminders, cloudAuth: cloudAuth, cloudStore: cloudStore),
   );
   if (autoDispose) addTearDown(c.dispose);
   return c;
@@ -107,6 +118,8 @@ Future<SharedPreferences> pumpApp(
   bool animations = false,
   bool settle = true,
   bool onboarded = true,
+  CloudAuth? cloudAuth,
+  CloudSaveStore? cloudStore,
 }) async {
   if (!animations) {
     tester.platformDispatcher.accessibilityFeaturesTestValue =
@@ -121,7 +134,8 @@ Future<SharedPreferences> pumpApp(
   });
   await tester.pumpWidget(
     ProviderScope(
-      overrides: appOverrides(prefs, clock, reminders: reminders),
+      overrides: appOverrides(prefs, clock,
+          reminders: reminders, cloudAuth: cloudAuth, cloudStore: cloudStore),
       child: const IdleMinerApp(),
     ),
   );

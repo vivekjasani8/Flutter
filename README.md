@@ -7,13 +7,16 @@ A virtual crypto-mining idle game for Android and iOS, built with Flutter.
 
 ## Status
 
-**Local-only build.** Done: M0–M2, **M5** and the offline part of **M7** —
-first-launch intro with the disclaimer; Mine, Shop, Rewards (daily streak +
-achievements), Stats and Settings; local
-save; "while you were away"; opt-in reminders; mining animation, haptics,
-accessibility and a performance pass. The online milestones (M3 accounts/cloud
-save, M4 leaderboard, M6 ads/purchases, and M7's Crashlytics + Remote Config)
-are deferred. See
+Done: M0–M2, **M5** and the offline part of **M7**: first-launch intro with
+the disclaimer; Mine, Shop, Rewards (daily streak + achievements), Stats and
+Settings; local save; "while you were away"; opt-in reminders; mining
+animation, haptics, accessibility and a performance pass.
+
+**M3 (accounts + cloud save) is in code**: Firebase project `idle-miner-sim`,
+guest sign-in by default, Google sign-in, cloud save that keeps the save with
+more progress, and account deletion. Device testing and deploying
+`firestore.rules` are still pending. M4 leaderboard, M6 ads/purchases and
+M7's Crashlytics + Remote Config come later. See
 [ROADMAP.md](ROADMAP.md) for the full plan and
 [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for what must happen before a
 store release.
@@ -23,7 +26,8 @@ store release.
 ```
 lib/
   engine/      pure Dart game rules (no Flutter imports) — unit tested
-  state/       GameController (Riverpod), save/load, reminder planning
+  state/       GameController (Riverpod), save/load, reminder planning,
+               cloud/ (auth + Firestore sync behind interfaces)
   app/         app root, go_router routes, bottom-nav shell, dialogs
   features/    onboarding/ mine/ shop/ rewards/ stats/ settings/ screens
   main.dart    app entry (loads preferences, starts ProviderScope)

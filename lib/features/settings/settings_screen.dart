@@ -7,6 +7,7 @@ import '../../app/router.dart';
 import '../../engine/config.dart';
 import '../../state/game_controller.dart';
 import '../../state/providers.dart';
+import 'account_section.dart';
 
 /// Player name, reminders, progress reset and the "this is a game" disclaimer.
 class SettingsScreen extends ConsumerWidget {
@@ -69,6 +70,8 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text('Start over with a new game on this device'),
             onTap: () => _confirmReset(context, ref),
           ),
+          const Divider(),
+          const AccountSection(),
           const Divider(),
           Padding(
             padding: const EdgeInsets.all(16),

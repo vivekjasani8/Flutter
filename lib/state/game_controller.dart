@@ -97,6 +97,14 @@ class GameController extends Notifier<GameState> {
     _save();
   }
 
+  /// Replace the game with [s] (e.g. a cloud save with more progress), paying
+  /// any offline time since it was saved, and save it on the device.
+  void replaceWith(GameState s) {
+    _launchReport = null;
+    state = tick(s, _now());
+    _save();
+  }
+
   /// Wipe local progress and start a new game.
   Future<void> resetProgress() async {
     _launchReport = null;

@@ -159,7 +159,10 @@ void main() {
           coins: 999,
         )));
     await openTab(tester, 'Settings');
-    expect(find.text(appDisclaimer), findsOneWidget);
+    await tester.scrollUntilVisible(find.text(appDisclaimer), 200,
+        scrollable: find.byType(Scrollable).first);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 2000));
+    await tester.pumpAndSettle(); // back to the top for the steps below
 
     await tester.tap(find.byKey(const ValueKey('edit-name')));
     await tester.pumpAndSettle();

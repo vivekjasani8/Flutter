@@ -1,0 +1,25 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "idle-miner-sim",
+          "appId": "1:1000051839848:android:b0a597e91cfca897023cdd",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "idle-miner-sim",
+          "configurations": {
+            "android": "1:1000051839848:android:b0a597e91cfca897023cdd",
+            "ios": "1:1000051839848:ios:120134decf4475ed023cdd"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

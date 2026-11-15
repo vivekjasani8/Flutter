@@ -65,16 +65,38 @@ milestone that covers it.
       current requirement and start early.
 - [ ] **Apple Developer Program** — $99/year. Enrolment can take days; it is the
       long pole for iOS. **(M8)**
-- [ ] Only if you add online features: **Firebase** project **(M3)**,
-      **AdMob** and **RevenueCat** accounts **(M6)**.
+- [x] **Firebase** project `idle-miner-sim` (Spark plan, Firestore in
+      asia-south1, Anonymous + Google sign-in) **(M3)**
+- [ ] **AdMob** and **RevenueCat** accounts **(M6)**.
 
 ## 4. Features still to decide or build
 
 The app is currently **local-only**. Decide which of these the first release
 needs; the store forms in section 5 depend on the answer.
 
-- [ ] **Accounts + cloud save** (Firebase Auth/Firestore) **(M3)**. If you add
-      accounts, Apple **requires in-app account deletion**.
+- [x] **Accounts + cloud save** code: guest by default, Google sign-in,
+      merge keeps the higher lifetime coins, in-app **account deletion**
+      (Apple and Google both require it) **(M3)**. Still to do:
+  - [ ] Test on a real phone (guest backup, Google sign-in, second device,
+        sign-out, delete account).
+  - [ ] **Deploy the Firestore rules**:
+        `firebase deploy --only firestore:rules --project idle-miner-sim`.
+        Until then "production mode" blocks every read and write.
+  - [ ] Add the **release** and **Play App Signing** SHA-1/SHA-256 to the
+        Firebase Android app, or Google sign-in fails in store builds (only
+        the debug key is registered now).
+  - [ ] **iOS**: on a Mac, add `GoogleService-Info.plist` and the
+        `REVERSED_CLIENT_ID` URL scheme for Google sign-in.
+  - [ ] **Sign in with Apple**: the App Store requires it (or an equivalent
+        private login) when an app offers Google sign-in. Needs the Apple
+        Developer account.
+  - [ ] **Google Play also needs a web link** where players can request
+        account deletion without the app (e.g. a page or form on your
+        privacy-policy site).
+  - [ ] Restrict the Firebase API keys to your app IDs in Google Cloud
+        console and turn on **App Check** (Play Integrity / App Attest).
+        The keys in `lib/firebase_options.dart` are identifiers, not
+        secrets, but this stops other apps from using your quota.
 - [ ] **Leaderboard with server validation** **(M4)**. Without it, do not show
       any ranking: a local-only game can be cheated by moving the phone's clock
       forward (earnings are capped at 8 h per jump, but still).
@@ -97,12 +119,14 @@ needs; the store forms in section 5 depend on the answer.
       the app, listing, screenshots or ads.
 - [ ] **Disclaimer** ("All coins are virtual… not financial advice") in the
       **store description**. Already in the app: onboarding, Mine and Settings.
-- [ ] **Privacy policy URL** (required by both stores, even for a local-only
-      app). Describe exactly what is stored (today: game progress on the device
-      only) and update it when Firebase/AdMob/RevenueCat are added.
+- [ ] **Privacy policy URL** (required by both stores). Describe exactly what
+      is stored: game progress on the device **and in Firebase** (tied to an
+      account ID, plus email and name if the player signs in with Google);
+      how to delete it. Update again when AdMob/RevenueCat are added.
 - [ ] **Google Play Data safety form** and **Apple App Privacy labels** —
-      must match what the SDKs collect. Local-only today = no data collected;
-      ads/analytics/accounts change that. **(M8)**
+      must match what the SDKs collect. Since M3: user ID, email/name (Google
+      sign-in), and game progress, linked to the account, not used for
+      tracking; deletion available in-app. **(M8)**
 - [ ] **Content rating** questionnaire (IARC) on Play; age rating on Apple.
       Answer the simulated-gambling/crypto questions carefully.
 - [ ] **Target audience**: not designed for children (avoid Families policy

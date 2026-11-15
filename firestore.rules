@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Idle Miner Sim — Firestore security rules.
+//
+// Each player has exactly one document, users/{uid}, holding their game save.
+// A player may only touch their own document; everything else is denied.
+// Deploy with:  firebase deploy --only firestore:rules --project idle-miner-sim
+//
+// Note: the save itself is still trusted from the client. Server-side checks
+// of earnings (so leaderboards can't be cheated) come with M4.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // The exact shape the app writes (see FirestoreCloudSaveStore.save).
+    function isValidSave() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['save', 'lifetimeCoins', 'schemaVersion',
+                               'updatedAt', 'platform'])
+          && d.keys().hasAll(['save', 'lifetimeCoins', 'schemaVersion',
+                              'updatedAt'])
+          && d.save is map
+          && d.lifetimeCoins is number && d.lifetimeCoins >= 0
+          && d.schemaVersion is int && d.schemaVersion >= 1
+          && d.updatedAt == request.time
+          && (!('platform' in d) || (d.platform is string
+                                     && d.platform.size() <= 20));
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && isValidSave();
+    }
+
+    // Deny everything not matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

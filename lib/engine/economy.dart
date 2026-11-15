@@ -353,6 +353,18 @@ GameState withAchievements(GameState s) {
   return s.copyWith(achievements: [...s.achievements, ...next]);
 }
 
+/// Which of two saves of the same player to keep when they meet (e.g. this
+/// device's local save and the cloud copy from another phone).
+///
+/// The one with more **lifetime** coins wins, because that is progress that
+/// was actually earned, whereas the balance drops when spending. On a tie the
+/// more recent save wins; on a full tie, [local] is kept.
+GameState pickSave(GameState local, GameState cloud) {
+  if (cloud.lifetimeCoins > local.lifetimeCoins) return cloud;
+  if (cloud.lifetimeCoins < local.lifetimeCoins) return local;
+  return cloud.lastTick > local.lastTick ? cloud : local;
+}
+
 /// Score used for rankings: floored lifetime coins, stable to display.
 int score(GameState s) => s.lifetimeCoins.floor();
 

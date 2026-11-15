@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../engine/config.dart';
+import '../state/cloud/cloud_sync_controller.dart';
 import '../state/game_controller.dart';
 import '../state/providers.dart';
 import '../state/reminders_controller.dart';
@@ -31,6 +32,7 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   GameController get _game => ref.read(gameControllerProvider.notifier);
   RemindersController get _reminders => ref.read(remindersProvider.notifier);
+  CloudSyncController get _cloud => ref.read(cloudSyncProvider.notifier);
 
   @override
   void initState() {
@@ -43,6 +45,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       if (!mounted) return;
       unawaited(_reminders.onAppResumed()); // the player is here now
       unawaited(_showAway(_game.takeAwayReport()));
+      unawaited(_cloud.start()); // guest sign-in + cloud merge, in background
     });
   }
 
@@ -58,11 +61,13 @@ class _AppShellState extends ConsumerState<AppShell> {
       ref.read(gameControllerProvider),
       ref.read(clockProvider)(),
     ));
+    unawaited(_cloud.flush());
   }
 
   void _onResume() {
     unawaited(_reminders.onAppResumed());
     unawaited(_showAway(_game.onResumed()));
+    unawaited(_cloud.start());
   }
 
   Future<void> _showAway(AwayReport? report) async {
