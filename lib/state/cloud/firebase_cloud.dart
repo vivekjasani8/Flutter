@@ -8,14 +8,21 @@ import '../../engine/economy.dart';
 import '../../firebase_options.dart';
 import 'cloud_auth.dart';
 import 'cloud_store.dart';
+import 'firebase_services.dart';
 
-/// Start Firebase. If that fails (no config, unsupported platform), the game
-/// still runs: it just gets the "unavailable" cloud and saves on-device only.
+/// Start Firebase, crash reporting and tuned balance. If Firebase fails (no
+/// config, unsupported platform), the game still runs: it gets the
+/// "unavailable" cloud, built-in balance, and saves on-device only.
+///
+/// Runs before the game loads, so Remote Config balance is in place before
+/// the first save is read.
 Future<({CloudAuth auth, CloudSaveStore store})> startCloud() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await startCrashReporting();
+    await loadRemoteEconomy();
     return (
       auth: FirebaseCloudAuth(FirebaseAuth.instance),
       store: FirestoreCloudSaveStore(FirebaseFirestore.instance),

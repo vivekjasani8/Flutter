@@ -74,8 +74,8 @@ class _DailyRewardCard extends ConsumerWidget {
 
   final GameState state;
 
-  /// Rewards stop growing after this day.
-  static const int _maxDay = 7;
+  /// Rewards stop growing after this day (tunable via Remote Config).
+  static int get _maxDay => economy.streakRewardMaxDays;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

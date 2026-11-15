@@ -94,7 +94,7 @@ void main() {
           rigLevels: {'cpu': 1},
         )));
 
-    const earned = cpuRate * 7200;
+    final earned = cpuRate * 7200;
     expect(find.text('While you were away'), findsOneWidget);
     expect(find.text('+${formatNumber(earned)} $coinName'), findsOneWidget);
     expect(find.textContaining('2h'), findsOneWidget);

@@ -18,7 +18,7 @@ void main() {
 
     test('is capped at the 8 h offline window', () {
       final s = stateWith(rigLevels: {'cpu': 1});
-      const capped = cpuRate * offlineCapSeconds;
+      final capped = cpuRate * offlineCapSeconds;
       expect(offlineEarnings(s, t0 + 8 * hourMs), closeTo(capped, 1e-6));
       expect(offlineEarnings(s, t0 + 10 * hourMs), closeTo(capped, 1e-6));
       expect(offlineEarnings(s, t0 + 30 * dayMs), closeTo(capped, 1e-6));
@@ -34,7 +34,7 @@ void main() {
     test('counts the boosted part of the absence at 2x', () {
       var s = stateWith(rigLevels: {'cpu': 1});
       s = activateBoost(s, t0); // 30 min boost
-      const expected =
+      final expected =
           cpuRate * 1800 * boostMultiplier + cpuRate * 1800; // 30 min each
       expect(offlineEarnings(s, t0 + hourMs), closeTo(expected, 1e-6));
     });

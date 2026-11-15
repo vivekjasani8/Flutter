@@ -20,4 +20,4 @@ GameState stateWith({Map<String, int> rigLevels = const {}, double? coins}) {
 }
 
 /// Coins per second for a single level of the CPU rack.
-const double cpuRate = 1 * coinsPerThSecond;
+double get cpuRate => 1 * coinsPerThSecond;

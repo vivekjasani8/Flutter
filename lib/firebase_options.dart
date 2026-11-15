@@ -56,13 +56,14 @@ class DefaultFirebaseOptions {
     projectId: 'idle-miner-sim',
     storageBucket: 'idle-miner-sim.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDbFdHPV2-sDCFz6FAGVaHFPazkZCd6chk',
     appId: '1:1000051839848:ios:120134decf4475ed023cdd',
     messagingSenderId: '1000051839848',
     projectId: 'idle-miner-sim',
     storageBucket: 'idle-miner-sim.firebasestorage.app',
+    androidClientId:
+        '1000051839848-1n5jleps6sqn78g2noccf01fm18v2gg4.apps.googleusercontent.com',
     iosClientId:
         '1000051839848-su2e11ua6l2jc83di24rvb2nop5iujqs.apps.googleusercontent.com',
     iosBundleId: 'com.vivekjasani.idleminersim',

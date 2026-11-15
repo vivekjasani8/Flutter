@@ -103,8 +103,15 @@ needs; the store forms in section 5 depend on the answer.
 - [ ] **Ads + purchases** (AdMob rewarded boost, RevenueCat Remove Ads,
       Restore Purchases, ATT prompt on iOS, UMP consent in the EU) **(M6)**.
       Build on **test IDs**; swap to live IDs only at release.
-- [ ] **Crashlytics** (crash reports) and **Remote Config** (tune the economy
-      without an update) **(M7)**.
+- [x] **Crashlytics** (crash reports, release builds only) and **Remote
+      Config** (tune the economy without an update; values range-checked,
+      applied on the next launch) **(M7)**. Still to do:
+  - [ ] Deploy the balance parameter:
+        `firebase deploy --only remoteconfig --project idle-miner-sim`
+        (from `remoteconfig.template.json`). Until then the app simply uses
+        its built-in balance.
+  - [ ] Open **Crashlytics** in the Firebase console once and check that a
+        test crash from a release build shows up.
 - [x] **Onboarding screen** showing the "this is a game" disclaimer on first
       launch (Skip can't bypass it; Settings → How to play reopens it).
 - [ ] **Daily reward day boundary**: days currently roll over at **00:00 UTC**
@@ -126,7 +133,8 @@ needs; the store forms in section 5 depend on the answer.
 - [ ] **Google Play Data safety form** and **Apple App Privacy labels** —
       must match what the SDKs collect. Since M3: user ID, email/name (Google
       sign-in), and game progress, linked to the account, not used for
-      tracking; deletion available in-app. **(M8)**
+      tracking; deletion available in-app. Since M7: **crash logs and
+      diagnostics** (Crashlytics, release builds). **(M8)**
 - [ ] **Content rating** questionnaire (IARC) on Play; age rating on Apple.
       Answer the simulated-gambling/crypto questions carefully.
 - [ ] **Target audience**: not designed for children (avoid Families policy

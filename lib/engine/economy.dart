@@ -180,7 +180,7 @@ bool isBoosted(GameState s, int now) => s.boostUntil > now;
 GameState tick(GameState s, int now) {
   if (now <= s.lastTick) return s;
 
-  const capMs = offlineCapSeconds * 1000;
+  final capMs = offlineCapSeconds * 1000;
   final from = math.max(s.lastTick, now - capMs);
   final base = baseCoinsPerSecond(s);
   final hourly = Map<int, double>.from(s.hourly);
@@ -271,7 +271,8 @@ String dayKey(int ms) => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true)
     .toIso8601String()
     .substring(0, 10);
 
-double streakReward(int streak) => 100.0 * math.min(streak, 7);
+double streakReward(int streak) =>
+    economy.streakRewardPerDay * math.min(streak, economy.streakRewardMaxDays);
 
 /// True only on a UTC day *after* the last claim. Comparing (not just checking
 /// "different day") stops a backwards clock from re-claiming: 'YYYY-MM-DD'

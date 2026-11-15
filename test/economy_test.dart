@@ -42,7 +42,7 @@ void main() {
       var s = GameState.newGame(t0);
       s = buyRig(s, 'cpu', t0)!; // costs 50, leaves 50, 1 TH/s
       final after = tick(s, s.lastTick + 10000); // 10 seconds
-      const expected = 1 * coinsPerThSecond * 10;
+      final expected = 1 * coinsPerThSecond * 10;
       expect(after.coins, closeTo(s.coins + expected, 1e-9));
     });
 
@@ -60,7 +60,7 @@ void main() {
       final start = s.coins;
       const tenHours = t0 + 10 * 3600 * 1000;
       final after = tick(s, tenHours);
-      const capped = 1 * coinsPerThSecond * offlineCapSeconds;
+      final capped = 1 * coinsPerThSecond * offlineCapSeconds;
       expect(after.coins - start, closeTo(capped, 1e-6));
     });
 
@@ -71,8 +71,8 @@ void main() {
       final start = s.coins;
       // Run for one hour: 30 min boosted (2x) + 30 min plain.
       final after = tick(s, s.lastTick + 3600 * 1000);
-      const boosted = 1 * coinsPerThSecond * 1800 * boostMultiplier;
-      const plain = 1 * coinsPerThSecond * 1800;
+      final boosted = 1 * coinsPerThSecond * 1800 * boostMultiplier;
+      final plain = 1 * coinsPerThSecond * 1800;
       expect(after.coins - start, closeTo(boosted + plain, 1e-6));
     });
   });

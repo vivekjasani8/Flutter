@@ -1,0 +1,11 @@
+{
+  "parameters": {
+    "economy": {
+      "defaultValue": {
+        "value": "{\"costGrowth\":1.15,\"coinsPerThSecond\":0.05,\"offlineCapSeconds\":28800,\"boostMultiplier\":2,\"boostDurationMs\":1800000,\"startingCoins\":100,\"streakRewardPerDay\":100,\"streakRewardMaxDays\":7,\"rigs\":{\"cpu\":{\"baseCost\":50,\"baseHash\":1},\"gpu\":{\"baseCost\":400,\"baseHash\":4},\"asic_mini\":{\"baseCost\":3000,\"baseHash\":14},\"asic_pro\":{\"baseCost\":25000,\"baseHash\":55},\"farm\":{\"baseCost\":200000,\"baseHash\":200}}}"
+      },
+      "description": "Idle Miner Sim balance (EconomyConfig JSON). Any missing or out-of-range value falls back to the app's built-in default. Applied on the player's next app launch.",
+      "valueType": "JSON"
+    }
+  }
+}

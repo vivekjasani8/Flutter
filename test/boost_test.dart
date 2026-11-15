@@ -48,7 +48,7 @@ void main() {
       s = activateBoost(s, t0);
       s = activateBoost(s, t0); // 60 min boosted in total
       final after = tick(s, t0 + 90 * minuteMs);
-      const expected = cpuRate * 3600 * boostMultiplier + cpuRate * 1800;
+      final expected = cpuRate * 3600 * boostMultiplier + cpuRate * 1800;
       expect(after.coins - s.coins, closeTo(expected, 1e-6));
     });
 

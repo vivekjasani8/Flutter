@@ -15,8 +15,11 @@ animation, haptics, accessibility and a performance pass.
 **M3 (accounts + cloud save) is in code**: Firebase project `idle-miner-sim`,
 guest sign-in by default, Google sign-in, cloud save that keeps the save with
 more progress, and account deletion. Device testing and deploying
-`firestore.rules` are still pending. M4 leaderboard, M6 ads/purchases and
-M7's Crashlytics + Remote Config come later. See
+`firestore.rules` are still pending.
+
+**M7 is complete in code**: Crashlytics (release builds) and Remote Config
+balance tuning (`remoteconfig.template.json`, not deployed yet). M4
+leaderboard and M6 ads/purchases come later. See
 [ROADMAP.md](ROADMAP.md) for the full plan and
 [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for what must happen before a
 store release.
