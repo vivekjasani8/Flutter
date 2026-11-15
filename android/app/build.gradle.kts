@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.idle_miner_sim"
+    namespace = "com.vivekjasani.idleminersim"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -22,8 +22,9 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.idle_miner_sim"
+        // Permanent: Google Play never allows changing it after the first
+        // upload, and Firebase registers the Android app under it.
+        applicationId = "com.vivekjasani.idleminersim"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

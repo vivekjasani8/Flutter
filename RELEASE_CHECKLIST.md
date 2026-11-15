@@ -15,14 +15,12 @@ milestone that covers it.
 
 ## 1. App identity (do first)
 
-- [ ] **Change the Android application ID** from `com.example.idle_miner_sim`
-      (Google Play rejects `com.example.*`). Edit `namespace` and
-      `applicationId` in `android/app/build.gradle.kts` and move
-      `MainActivity.kt` out of `kotlin/com/example/...` to match.
-      Example: `com.vivekjasani.idleminersim`.
-- [ ] **Change the iOS bundle ID** from `com.example.idleMinerSim`
-      (`PRODUCT_BUNDLE_IDENTIFIER` in `ios/Runner.xcodeproj/project.pbxproj`,
-      or in Xcode → Runner → Signing & Capabilities).
+- [x] **Android application ID** is `com.vivekjasani.idleminersim` (was
+      `com.example.idle_miner_sim`, which Google Play rejects). Permanent from
+      the first Play upload; Firebase registers the Android app under it.
+- [x] **iOS bundle ID** is `com.vivekjasani.idleminersim` (tests:
+      `…RunnerTests`). Register it in your Apple Developer account when you
+      enrol.
 - [ ] **Home-screen name**: `android:label` in
       `android/app/src/main/AndroidManifest.xml` is `idle_miner_sim`; set it to
       `Idle Miner Sim`. Same for `CFBundleDisplayName` in `ios/Runner/Info.plist`.
