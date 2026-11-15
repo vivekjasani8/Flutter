@@ -224,6 +224,29 @@ double paybackSeconds(String id, int currentLevel) {
   return rigCost(id, currentLevel) / (rig.baseHash * coinsPerThSecond);
 }
 
+/// True when more time has passed since [GameState.lastTick] than the offline
+/// cap pays for, i.e. the "while you were away" amount hit its limit.
+bool offlineCapped(GameState s, int now) =>
+    now - s.lastTick > offlineCapSeconds * 1000;
+
+/// Whether the player can pay for the next level of [id] right now.
+bool canAfford(GameState s, String id) =>
+    s.coins >= rigCost(id, s.rigs[id] ?? 0);
+
+/// Coins earned in each of the last [historyHours] clock hours, oldest first,
+/// ending with the hour that contains [now]. Hours with no earnings are 0, so
+/// the list always has exactly [historyHours] entries for a chart.
+List<({int hourStart, double coins})> earningsHistory(GameState s, int now) {
+  final current = (now ~/ _hourMs) * _hourMs;
+  return [
+    for (var i = historyHours - 1; i >= 0; i--)
+      (
+        hourStart: current - i * _hourMs,
+        coins: s.hourly[current - i * _hourMs] ?? 0,
+      ),
+  ];
+}
+
 /// Buy one level of [id]. Returns null if the player cannot afford it.
 GameState? buyRig(GameState s, String id, int now) {
   final settled = tick(s, now);
@@ -320,4 +343,18 @@ String formatNumber(double n) {
     out = v.toStringAsFixed(1);
   }
   return (n < 0 ? '-' : '') + out + units[i];
+}
+
+/// Short human duration, two units at most: "45s", "16m 40s", "5h 33m",
+/// "2d 4h". Rounds down to whole seconds; negatives read as "0s".
+String formatDuration(double seconds) {
+  final total = seconds.isFinite ? math.max(0, seconds.floor()) : 0;
+  final d = total ~/ 86400;
+  final h = (total % 86400) ~/ 3600;
+  final m = (total % 3600) ~/ 60;
+  final s = total % 60;
+  if (d > 0) return h > 0 ? '${d}d ${h}h' : '${d}d';
+  if (h > 0) return m > 0 ? '${h}h ${m}m' : '${h}h';
+  if (m > 0) return s > 0 ? '${m}m ${s}s' : '${m}m';
+  return '${s}s';
 }

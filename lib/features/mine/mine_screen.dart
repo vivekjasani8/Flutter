@@ -1,96 +1,105 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app/router.dart';
 import '../../engine/config.dart';
 import '../../engine/economy.dart';
+import '../../state/providers.dart';
 
-/// M0 placeholder home screen: a live earnings counter driven by the engine,
-/// one starter rig to buy, and the required "this is a game" disclaimer.
-/// Proper state management (Riverpod) and the full screen set arrive in M2.
-class MineScreen extends StatefulWidget {
+/// Home tab: live balance, mining rate and the rigs the player owns.
+class MineScreen extends ConsumerWidget {
   const MineScreen({super.key});
 
   @override
-  State<MineScreen> createState() => _MineScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(gameControllerProvider);
+    final theme = Theme.of(context);
+    final now = s.lastTick;
+    final owned = [
+      for (final r in rigs)
+        if ((s.rigs[r.id] ?? 0) > 0) r,
+    ];
 
-class _MineScreenState extends State<MineScreen> {
-  late GameState _state;
-  Timer? _timer;
-
-  int get _now => DateTime.now().millisecondsSinceEpoch;
-
-  @override
-  void initState() {
-    super.initState();
-    _state = GameState.newGame(_now);
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
-      setState(() => _state = tick(_state, _now));
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _buyFirstRig() {
-    final next = buyRig(_state, 'cpu', _now);
-    if (next != null) {
-      setState(() => _state = next);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Not enough SimCoin yet.')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final level = _state.rigs['cpu'] ?? 0;
-    final cost = rigCost('cpu', level);
     return Scaffold(
       appBar: AppBar(title: const Text('Idle Miner Sim')),
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Spacer(),
-            Text('$coinName balance',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: 8),
-            Text(
-              formatNumber(_state.coins),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.displayMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${formatNumber(totalHash(_state))} TH/s  ·  '
-              '${formatNumber(baseCoinsPerSecond(_state))} $coinName/s',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const Spacer(),
-            FilledButton(
-              onPressed: _buyFirstRig,
-              child: Text(
-                  'Buy CPU Rack (Lv $level)  —  ${formatNumber(cost)} $coinName'),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              appDisclaimer,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+        children: [
+          Text(
+            '$coinName balance',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.labelLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            formatNumber(s.coins),
+            key: const ValueKey('balance'),
+            textAlign: TextAlign.center,
+            style: theme.textTheme.displayMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${formatNumber(totalHash(s))} TH/s  ·  '
+            '${formatNumber(baseCoinsPerSecond(s))} $coinName/s',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium,
+          ),
+          if (isBoosted(s, now)) ...[
+            const SizedBox(height: 12),
+            Center(
+              child: Chip(
+                avatar: const Icon(Icons.bolt, size: 18),
+                label: Text(
+                  '${boostMultiplier.toStringAsFixed(0)}x boost · '
+                  '${formatDuration((s.boostUntil - now) / 1000)} left',
+                ),
+              ),
             ),
           ],
-        ),
+          const SizedBox(height: 32),
+          Text('Your rigs', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          if (owned.isEmpty)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const Text(
+                      'No rigs yet. Buy a CPU Rack in the Shop to start mining.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.tonal(
+                      onPressed: () => context.go(Routes.shop),
+                      child: const Text('Go to Shop'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            for (final r in owned)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.memory),
+                  title: Text(r.name),
+                  subtitle: Text('Lv ${s.rigs[r.id]}'),
+                  trailing: Text(
+                    '${formatNumber(r.baseHash * (s.rigs[r.id] ?? 0))} TH/s',
+                  ),
+                ),
+              ),
+          const SizedBox(height: 24),
+          Text(
+            appDisclaimer,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

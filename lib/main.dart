@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'features/mine/mine_screen.dart';
+import 'app/app.dart';
+import 'state/providers.dart';
 
-void main() {
-  runApp(const IdleMinerApp());
-}
-
-class IdleMinerApp extends StatelessWidget {
-  const IdleMinerApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Idle Miner Sim',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF3DDC84),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      home: const MineScreen(),
-    );
-  }
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  runApp(
+    ProviderScope(
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      child: const IdleMinerApp(),
+    ),
+  );
 }
