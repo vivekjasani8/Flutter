@@ -77,11 +77,16 @@ needs; the store forms in section 5 depend on the answer.
 - [x] **Accounts + cloud save** code: guest by default, Google sign-in,
       merge keeps the higher lifetime coins, in-app **account deletion**
       (Apple and Google both require it) **(M3)**. Still to do:
-  - [ ] Test on a real phone (guest backup, Google sign-in, second device,
-        sign-out, delete account).
-  - [ ] **Deploy the Firestore rules**:
-        `firebase deploy --only firestore:rules --project idle-miner-sim`.
-        Until then "production mode" blocks every read and write.
+  - [x] Tested on a real phone (Android 17, debug build): guest backup,
+        Google sign-in, **uninstall → reinstall → sign in restores
+        progress**, sign-out + sign back in, delete account (old data not
+        restored afterwards).
+  - [x] **Firestore rules deployed** to `idle-miner-sim`. Redeploy after any
+        rules change: `firebase deploy --only firestore:rules --project
+        idle-miner-sim`.
+  - [ ] Repeat the sign-in and restore test with the **signed release
+        build** from the Play internal test track (uses a different key,
+        see below).
   - [ ] Add the **release** and **Play App Signing** SHA-1/SHA-256 to the
         Firebase Android app, or Google sign-in fails in store builds (only
         the debug key is registered now).
@@ -107,7 +112,8 @@ needs; the store forms in section 5 depend on the answer.
         --project idle-miner-sim`. Until then the app shows "The leaderboard
         is not live yet."
   - [ ] Test on a phone and on a second device: score appears, rank is
-        right, a clock moved forward doesn't raise the score.
+        right, a clock moved forward doesn't raise the score. (Today the app
+        correctly shows "The leaderboard is not live yet.")
   - [ ] **Player names are public** on the leaderboard: decide on name
         moderation (block list or reporting) before launch, and mention the
         public name in the privacy policy.
@@ -119,10 +125,10 @@ needs; the store forms in section 5 depend on the answer.
 - [x] **Crashlytics** (crash reports, release builds only) and **Remote
       Config** (tune the economy without an update; values range-checked,
       applied on the next launch) **(M7)**. Still to do:
-  - [ ] Deploy the balance parameter:
-        `firebase deploy --only remoteconfig --project idle-miner-sim`
-        (from `remoteconfig.template.json`). Until then the app simply uses
-        its built-in balance.
+  - [x] Balance parameter deployed (Remote Config version 1, same values
+        as the built-in defaults). Tune it in the Firebase console, or edit
+        `remoteconfig.template.json` and run
+        `firebase deploy --only remoteconfig --project idle-miner-sim`.
   - [ ] Open **Crashlytics** in the Firebase console once and check that a
         test crash from a release build shows up.
 - [x] **Onboarding screen** showing the "this is a game" disclaimer on first
@@ -165,10 +171,13 @@ needs; the store forms in section 5 depend on the answer.
       pass Flutter's guideline checks on every tab; layouts tested at 2× font
       on a small phone; "Remove animations" respected. Still worth a manual
       pass with **TalkBack** (Android) and **VoiceOver** (iOS) before release.
-- [ ] **Notifications**: permission is asked at a sensible moment (not on
-      launch); reminders fire on Android 13+ after a reboot; iOS permission
-      prompt works. Remove or keep hidden any **debug-only** test buttons
-      (they must be behind `kDebugMode`).
+- [x] **Notifications** on Android 17: permission asked after the first
+      claim (not on launch), test reminder arrives. Debug test button is
+      behind `kDebugMode` (hidden in profile/release builds, confirmed).
+- [ ] Still to check: a scheduled reminder survives a **phone reboot**, and
+      the iOS permission prompt (needs a Mac).
+- [x] Light / dark / system appearance, new design, gameplay, "while you
+      were away", rewards and haptics checked on the phone.
 - [ ] `dart format`, `flutter analyze` (zero warnings) and `flutter test` all
       green in CI.
 - [ ] **Save compatibility**: if `GameState` fields change, bump
