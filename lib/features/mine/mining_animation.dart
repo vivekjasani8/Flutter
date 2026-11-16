@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../app/brand_widgets.dart';
 import '../../engine/economy.dart';
 
 /// A rig "fan" that spins faster as hash rate grows and stops when idle.
@@ -83,19 +84,15 @@ class _MiningAnimationState extends State<MiningAnimation>
           child: DecoratedBox(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(colors: [
-                (active ? scheme.primary : scheme.outline)
-                    .withValues(alpha: 0.25),
-                Colors.transparent,
-              ]),
+              color: scheme.surfaceContainerLow,
+              border: Border.all(color: scheme.outlineVariant, width: 1.5),
             ),
-            child: RotationTransition(
-              key: const ValueKey('mining-spinner'),
-              turns: _spin,
-              child: Icon(
-                Icons.settings,
-                size: widget.size * 0.7,
-                color: active ? scheme.primary : scheme.outline,
+            child: Padding(
+              padding: EdgeInsets.all(widget.size * 0.12),
+              child: RotationTransition(
+                key: const ValueKey('mining-spinner'),
+                turns: _spin,
+                child: MiningFan(active: active, size: widget.size * 0.76),
               ),
             ),
           ),

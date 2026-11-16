@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../engine/config.dart';
+import '../../app/brand_widgets.dart';
+import '../../app/theme.dart';
 import '../../engine/economy.dart';
 
 /// Prominent "Total hash rate" and income readout. Used on Mine, and in a
@@ -16,10 +17,10 @@ class HashRateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     final hash = totalHash(state);
     final perSecond = baseCoinsPerSecond(state);
 
+    final brand = AppColors.of(context);
     final hashTile = _Stat(
       icon: Icons.speed,
       label: 'Total hash rate',
@@ -27,7 +28,7 @@ class HashRateCard extends StatelessWidget {
       valueKey: const ValueKey('total-hash'),
       valueStyle:
           (compact ? theme.textTheme.titleLarge : theme.textTheme.headlineSmall)
-              ?.copyWith(color: scheme.primary, fontWeight: FontWeight.w600),
+              ?.copyWith(color: brand.accent),
     );
 
     return Card(
@@ -45,10 +46,11 @@ class HashRateCard extends StatelessWidget {
                       child: _Stat(
                         icon: Icons.trending_up,
                         label: 'Income',
-                        value: '${formatNumber(perSecond)} $coinName/s',
+                        value: '${formatNumber(perSecond)}/s',
                         valueKey: const ValueKey('income'),
-                        valueStyle: theme.textTheme.titleMedium,
-                        detail: '${formatNumber(perSecond * 3600)} per hour',
+                        valueStyle: theme.textTheme.headlineSmall,
+                        coin: true,
+                        detail: '+${formatNumber(perSecond * 3600)} per hour',
                       ),
                     ),
                   ],
@@ -67,6 +69,7 @@ class _Stat extends StatelessWidget {
     required this.valueKey,
     this.valueStyle,
     this.detail,
+    this.coin = false,
   });
 
   final IconData icon;
@@ -75,6 +78,9 @@ class _Stat extends StatelessWidget {
   final Key valueKey;
   final TextStyle? valueStyle;
   final String? detail;
+
+  /// Show the SimCoin before the value.
+  final bool coin;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +101,15 @@ class _Stat extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text(value, key: valueKey, style: valueStyle),
+          Row(
+            children: [
+              if (coin) ...[
+                CoinIcon(size: (valueStyle?.fontSize ?? 16) * 0.85),
+                const SizedBox(width: 6),
+              ],
+              Flexible(child: Text(value, key: valueKey, style: valueStyle)),
+            ],
+          ),
           if (detail != null) Text(detail!, style: muted),
         ],
       ),

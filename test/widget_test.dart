@@ -11,7 +11,7 @@ void main() {
   late FakeClock clock;
   setUp(() => clock = FakeClock(t0));
 
-  testWidgets('boots to Mine with the bottom navigation and disclaimer',
+  testWidgets('boots to Mine with the bottom navigation and honesty line',
       (tester) async {
     await pumpApp(tester, clock);
 
@@ -26,11 +26,14 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    // The full disclaimer lives on the intro and in Settings; Mine keeps a
+    // one-line reminder instead of a paragraph of small print.
     await tester.scrollUntilVisible(
-      find.text(appDisclaimer),
+      find.text('A game. Coins are virtual, never real money.'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    expect(find.text(appDisclaimer), findsNothing);
   });
 
   testWidgets('buying and upgrading rigs in the Shop', (tester) async {
@@ -174,13 +177,16 @@ void main() {
     expect(storedGame(prefs)!.playerName, 'Rig Runner');
 
     // Cancelling the reset keeps everything.
-    await tester.tap(find.byKey(const ValueKey('reset-progress')));
+    final reset = find.byKey(const ValueKey('reset-progress'));
+    await tester.ensureVisible(reset);
+    await tester.pumpAndSettle();
+    await tester.tap(reset);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(liveGame(tester).coins, 999);
 
-    await tester.tap(find.byKey(const ValueKey('reset-progress')));
+    await tester.tap(reset);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('confirm-reset')));
     await tester.pumpAndSettle();

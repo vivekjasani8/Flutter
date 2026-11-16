@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/haptics.dart';
 import '../../app/reminder_prompt.dart';
+import '../../app/theme.dart';
 import '../../engine/config.dart';
 import '../../engine/economy.dart';
 import '../../state/providers.dart';
@@ -160,7 +161,7 @@ class _DailyRewardCard extends ConsumerWidget {
     Haptics.reward(ref);
     final day = ref.read(gameControllerProvider).streak;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('+${formatNumber(paid)} $coinName · day $day streak'),
+      content: Text('+${formatNumber(paid)} $coinName Â· day $day streak'),
     ));
     await maybeOfferReminders(context, ref, ReminderReason.streak);
   }
@@ -196,10 +197,12 @@ class _DayChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
         decoration: BoxDecoration(
           color: current
-              ? scheme.primaryContainer
+              ? AppColors.of(context).accentTint
               : scheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(8),
-          border: current ? Border.all(color: scheme.primary) : null,
+          border: current
+              ? Border.all(color: AppColors.of(context).accent, width: 1.5)
+              : null,
         ),
         // Seven chips share one row: shrink text rather than overflow when
         // the player uses a large font size.
@@ -240,39 +243,42 @@ class _AchievementTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    final brand = AppColors.of(context);
     return Semantics(
       label: '${def.title}, ${unlocked ? 'unlocked' : 'locked'}. '
           '${def.description}',
       excludeSemantics: true,
-      // Locked tiles use quieter colours, never transparency, so their text
-      // still meets contrast guidelines.
+      // Unlocked: brand gold. Locked: quieter colours, never transparency,
+      // so their text still meets contrast guidelines.
       child: Card(
         key: ValueKey('achievement-${def.id}'),
         margin: EdgeInsets.zero,
-        color: unlocked ? scheme.secondaryContainer : null,
+        color: unlocked ? brand.accentTint : null,
+        shape: unlocked
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: brand.accent.withValues(alpha: 0.6)),
+              )
+            : null,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(unlocked ? _icons[def.id] ?? Icons.star : Icons.lock,
-                  color: unlocked ? scheme.primary : scheme.outline),
+                  color: unlocked ? brand.accent : scheme.outline),
               const SizedBox(height: 8),
               Text(
                 def.title,
                 style: text.titleSmall?.copyWith(
-                  color: unlocked
-                      ? scheme.onSecondaryContainer
-                      : scheme.onSurfaceVariant,
+                  color: unlocked ? scheme.onSurface : scheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 def.description,
                 style: text.bodySmall?.copyWith(
-                  color: unlocked
-                      ? scheme.onSecondaryContainer
-                      : scheme.onSurfaceVariant,
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
             ],

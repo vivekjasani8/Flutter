@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idle_miner_sim/engine/config.dart';
 import 'package:idle_miner_sim/engine/economy.dart';
@@ -20,9 +20,9 @@ void main() {
 
     expect(totalHash(s), 13);
     expect(textOf(tester, 'total-hash'), '13 TH/s');
-    expect(textOf(tester, 'income'),
-        '${formatNumber(13 * coinsPerThSecond)} $coinName/s');
-    expect(find.text('${formatNumber(13 * coinsPerThSecond * 3600)} per hour'),
+    expect(
+        textOf(tester, 'income'), '${formatNumber(13 * coinsPerThSecond)}/s');
+    expect(find.text('+${formatNumber(13 * coinsPerThSecond * 3600)} per hour'),
         findsOneWidget);
   });
 

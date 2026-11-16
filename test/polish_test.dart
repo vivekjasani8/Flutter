@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idle_miner_sim/engine/economy.dart';
 import 'package:idle_miner_sim/features/mine/mining_animation.dart';
 import 'package:idle_miner_sim/state/haptics_controller.dart';
+import 'package:idle_miner_sim/state/theme_mode_controller.dart';
 
 import 'support/app_harness.dart';
 import 'support/fixtures.dart';
@@ -61,20 +62,57 @@ void main() {
   setUp(() => clock = FakeClock(t0 + 3 * hourMs));
 
   group('accessibility guidelines', () {
-    for (final tab in tabs) {
-      testWidgets('$tab meets tap-target, label and contrast guidelines',
-          (tester) async {
-        final semantics = tester.ensureSemantics();
-        useSmallPhone(tester);
-        await pumpApp(tester, clock, saved: midGame());
-        await openTab(tester, tab);
+    for (final mode in ['light', 'dark']) {
+      for (final tab in tabs) {
+        testWidgets(
+            '$tab ($mode) meets tap-target, label and contrast guidelines',
+            (tester) async {
+          final semantics = tester.ensureSemantics();
+          useSmallPhone(tester);
+          await pumpApp(tester, clock,
+              saved: {...midGame(), ThemeModeController.key: mode});
+          await openTab(tester, tab);
 
-        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-        await expectLater(tester, meetsGuideline(textContrastGuideline));
-        semantics.dispose();
-      });
+          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(textContrastGuideline));
+          semantics.dispose();
+        });
+      }
     }
+  });
+
+  group('appearance', () {
+    ThemeMode appMode(WidgetTester tester) =>
+        tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode!;
+
+    testWidgets('follows the phone by default', (tester) async {
+      await pumpApp(tester, clock);
+      expect(appMode(tester), ThemeMode.system);
+    });
+
+    testWidgets('Settings switch changes the theme and remembers it',
+        (tester) async {
+      final prefs = await pumpApp(tester, clock);
+      await openTab(tester, 'Settings');
+
+      await tester.tap(find.text('Dark'));
+      await tester.pumpAndSettle();
+      expect(appMode(tester), ThemeMode.dark);
+      expect(Theme.of(tester.element(find.text('Dark'))).brightness,
+          Brightness.dark);
+      expect(prefs.getString(ThemeModeController.key), 'dark');
+
+      await tester.tap(find.text('Light'));
+      await tester.pumpAndSettle();
+      expect(appMode(tester), ThemeMode.light);
+      expect(prefs.getString(ThemeModeController.key), 'light');
+    });
+
+    testWidgets('a saved choice is used on the next launch', (tester) async {
+      await pumpApp(tester, clock, saved: {ThemeModeController.key: 'dark'});
+      expect(appMode(tester), ThemeMode.dark);
+    });
   });
 
   group('large text', () {

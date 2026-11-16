@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../state/providers.dart';
 import 'router.dart';
+import 'theme.dart';
 
 class IdleMinerApp extends ConsumerWidget {
   const IdleMinerApp({super.key});
@@ -11,13 +13,9 @@ class IdleMinerApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Idle Miner Sim',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF3DDC84),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(routerProvider),
     );
   }

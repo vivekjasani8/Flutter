@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,6 +13,7 @@ import 'haptics_controller.dart';
 import 'onboarding_controller.dart';
 import 'reminder_scheduler.dart';
 import 'reminders_controller.dart';
+import 'theme_mode_controller.dart';
 
 /// Loaded once in `main()` and injected with `overrideWithValue`, so the rest
 /// of the app can read preferences synchronously.
@@ -62,6 +64,10 @@ final cloudSyncProvider = NotifierProvider<CloudSyncController, CloudSyncState>(
 /// Whether the first-launch intro has been completed.
 final onboardingProvider =
     NotifierProvider<OnboardingController, bool>(OnboardingController.new);
+
+/// Settings → Appearance: system, light or dark.
+final themeModeProvider =
+    NotifierProvider<ThemeModeController, ThemeMode>(ThemeModeController.new);
 
 /// Whether vibration feedback is on (Settings switch).
 final hapticsProvider =
