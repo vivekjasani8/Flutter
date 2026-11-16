@@ -5,6 +5,7 @@ import '../engine/economy.dart';
 import 'cloud/cloud_auth.dart';
 import 'cloud/cloud_store.dart';
 import 'cloud/cloud_sync_controller.dart';
+import 'cloud/leaderboard_service.dart';
 import 'game_controller.dart';
 import 'game_storage.dart';
 import 'haptics_controller.dart';
@@ -48,6 +49,11 @@ final cloudAuthProvider =
 /// Where cloud saves live. Same default as [cloudAuthProvider].
 final cloudStoreProvider =
     Provider<CloudSaveStore>((ref) => const UnavailableCloudSaveStore());
+
+/// The global leaderboard (server-validated scores). Same default as
+/// [cloudAuthProvider].
+final leaderboardServiceProvider = Provider<LeaderboardService>(
+    (ref) => const UnavailableLeaderboardService());
 
 /// Sign-in state and background sync of the game to the cloud.
 final cloudSyncProvider = NotifierProvider<CloudSyncController, CloudSyncState>(

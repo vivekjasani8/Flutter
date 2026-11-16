@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/leaderboard/leaderboard_screen.dart';
 import '../features/mine/mine_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/rewards/rewards_screen.dart';
@@ -12,6 +13,7 @@ import 'app_shell.dart';
 
 abstract final class Routes {
   static const String welcome = '/welcome';
+  static const String leaderboard = '/leaderboard';
   static const String mine = '/mine';
   static const String shop = '/shop';
   static const String rewards = '/rewards';
@@ -32,6 +34,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.welcome,
         builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: Routes.leaderboard,
+        builder: (context, state) => const LeaderboardScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(shell: shell),

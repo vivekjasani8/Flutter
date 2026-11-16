@@ -6,8 +6,9 @@ rules_version = '2';
 // A player may only touch their own document; everything else is denied.
 // Deploy with:  firebase deploy --only firestore:rules --project idle-miner-sim
 //
-// Note: the save itself is still trusted from the client. Server-side checks
-// of earnings (so leaderboards can't be cheated) come with M4.
+// The save itself is the player's own business and is trusted. Leaderboard
+// scores are not: only the validateSync Cloud Function writes them, after
+// checking the claim against the server clock (functions/src/validate.ts).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -33,6 +34,21 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid) && isValidSave();
+    }
+
+    // Leaderboard (M4). Written ONLY by the validateSync Cloud Function,
+    // which uses the Admin SDK and so bypasses these rules. Players can
+    // read it (at most 100 entries per query) but never write it, not
+    // even their own entry.
+    match /scores/{uid} {
+      allow get: if request.auth != null;
+      allow list: if request.auth != null && request.query.limit <= 100;
+      allow write: if false;
+    }
+
+    // Per-player validation state used by validateSync. Server only.
+    match /serverState/{uid} {
+      allow read, write: if false;
     }
 
     // Deny everything not matched above.

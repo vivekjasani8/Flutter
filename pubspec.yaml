@@ -22,6 +22,7 @@ dependencies:
   google_sign_in: ^7.2.0
   firebase_crashlytics: ^6.0.1
   firebase_remote_config: ^7.0.1
+  cloud_functions: ^7.0.1
 
 dev_dependencies:
   flutter_test:

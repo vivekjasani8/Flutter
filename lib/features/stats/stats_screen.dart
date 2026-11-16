@@ -1,7 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app/router.dart';
 import '../../engine/config.dart';
 import '../../engine/economy.dart';
 import '../../state/providers.dart';
@@ -23,6 +25,13 @@ class StatsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          FilledButton.tonalIcon(
+            key: const ValueKey('open-leaderboard'),
+            icon: const Icon(Icons.leaderboard),
+            label: const Text('Global leaderboard'),
+            onPressed: () => context.push(Routes.leaderboard),
+          ),
+          const SizedBox(height: 16),
           Text('Earnings, last 24 hours', style: theme.textTheme.titleMedium),
           const SizedBox(height: 12),
           SizedBox(

@@ -8,6 +8,7 @@ import 'package:idle_miner_sim/app/app.dart';
 import 'package:idle_miner_sim/engine/economy.dart';
 import 'package:idle_miner_sim/state/cloud/cloud_auth.dart';
 import 'package:idle_miner_sim/state/cloud/cloud_store.dart';
+import 'package:idle_miner_sim/state/cloud/leaderboard_service.dart';
 import 'package:idle_miner_sim/state/game_storage.dart';
 import 'package:idle_miner_sim/state/onboarding_controller.dart';
 import 'package:idle_miner_sim/state/providers.dart';
@@ -77,6 +78,7 @@ List<Override> appOverrides(
   ReminderScheduler? reminders,
   CloudAuth? cloudAuth,
   CloudSaveStore? cloudStore,
+  LeaderboardService? leaderboard,
 }) =>
     [
       sharedPreferencesProvider.overrideWithValue(prefs),
@@ -85,6 +87,8 @@ List<Override> appOverrides(
           .overrideWithValue(reminders ?? FakeReminderScheduler()),
       if (cloudAuth != null) cloudAuthProvider.overrideWithValue(cloudAuth),
       if (cloudStore != null) cloudStoreProvider.overrideWithValue(cloudStore),
+      if (leaderboard != null)
+        leaderboardServiceProvider.overrideWithValue(leaderboard),
     ];
 
 /// A provider container for controller tests. Disposed after the test unless
@@ -120,6 +124,7 @@ Future<SharedPreferences> pumpApp(
   bool onboarded = true,
   CloudAuth? cloudAuth,
   CloudSaveStore? cloudStore,
+  LeaderboardService? leaderboard,
 }) async {
   if (!animations) {
     tester.platformDispatcher.accessibilityFeaturesTestValue =
@@ -135,7 +140,10 @@ Future<SharedPreferences> pumpApp(
   await tester.pumpWidget(
     ProviderScope(
       overrides: appOverrides(prefs, clock,
-          reminders: reminders, cloudAuth: cloudAuth, cloudStore: cloudStore),
+          reminders: reminders,
+          cloudAuth: cloudAuth,
+          cloudStore: cloudStore,
+          leaderboard: leaderboard),
       child: const IdleMinerApp(),
     ),
   );

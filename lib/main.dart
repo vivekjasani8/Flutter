@@ -20,6 +20,7 @@ Future<void> main() async {
         reminderSchedulerProvider.overrideWithValue(reminders),
         cloudAuthProvider.overrideWithValue(cloud.auth),
         cloudStoreProvider.overrideWithValue(cloud.store),
+        leaderboardServiceProvider.overrideWithValue(cloud.leaderboard),
       ],
       child: const IdleMinerApp(),
     ),

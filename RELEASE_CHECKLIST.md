@@ -97,9 +97,22 @@ needs; the store forms in section 5 depend on the answer.
         console and turn on **App Check** (Play Integrity / App Attest).
         The keys in `lib/firebase_options.dart` are identifiers, not
         secrets, but this stops other apps from using your quota.
-- [ ] **Leaderboard with server validation** **(M4)**. Without it, do not show
-      any ranking: a local-only game can be cheated by moving the phone's clock
-      forward (earnings are capped at 8 h per jump, but still).
+- [x] **Leaderboard with server validation** code **(M4)**: the
+      `validateSync` Cloud Function caps every score at what could really have
+      been earned (server clock, paid-for rigs); clients can never write
+      `scores` (emulator-tested); top 100 + your rank in the app. Still to do:
+  - [ ] Upgrade the Firebase project to **Blaze** (pay-as-you-go; has a free
+        monthly allowance) and set a **budget alert** in Google Cloud.
+  - [ ] Deploy: `firebase deploy --only functions,firestore:rules
+        --project idle-miner-sim`. Until then the app shows "The leaderboard
+        is not live yet."
+  - [ ] Test on a phone and on a second device: score appears, rank is
+        right, a clock moved forward doesn't raise the score.
+  - [ ] **Player names are public** on the leaderboard: decide on name
+        moderation (block list or reporting) before launch, and mention the
+        public name in the privacy policy.
+  - [ ] Turn on **App Check** enforcement for the function
+        (`enforceAppCheck: true`) once App Check is set up.
 - [ ] **Ads + purchases** (AdMob rewarded boost, RevenueCat Remove Ads,
       Restore Purchases, ATT prompt on iOS, UMP consent in the EU) **(M6)**.
       Build on **test IDs**; swap to live IDs only at release.

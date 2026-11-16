@@ -18,8 +18,13 @@ more progress, and account deletion. Device testing and deploying
 `firestore.rules` are still pending.
 
 **M7 is complete in code**: Crashlytics (release builds) and Remote Config
-balance tuning (`remoteconfig.template.json`, not deployed yet). M4
-leaderboard and M6 ads/purchases come later. See
+balance tuning (`remoteconfig.template.json`, not deployed yet).
+
+**M4 (leaderboard) is in code**: `functions/` holds the `validateSync`
+Cloud Function (server-checked scores) and an account clean-up trigger;
+`firestore.rules` keeps `scores` read-only for clients (emulator-tested:
+`cd functions && npm test && npm run test:rules`). Deploying needs the Blaze
+plan. M6 ads/purchases needs AdMob and RevenueCat accounts. See
 [ROADMAP.md](ROADMAP.md) for the full plan and
 [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for what must happen before a
 store release.
@@ -32,10 +37,14 @@ lib/
   state/       GameController (Riverpod), save/load, reminder planning,
                cloud/ (auth + Firestore sync behind interfaces)
   app/         app root, go_router routes, bottom-nav shell, dialogs
-  features/    onboarding/ mine/ shop/ rewards/ stats/ settings/ screens
+  features/    onboarding/ mine/ shop/ rewards/ stats/ leaderboard/
+               settings/ screens
   main.dart    app entry (loads preferences, starts ProviderScope)
 test/          engine, state and widget tests (support/ has shared helpers)
-.github/workflows/ci.yml   format + analyze + test on every push
+functions/     Cloud Functions (TypeScript): score validation + tests
+firestore.rules            security rules (tested in the emulator)
+.github/workflows/ci.yml   app: format + analyze + test; functions: unit +
+                           rules tests, on every push
 ```
 
 ## Run it

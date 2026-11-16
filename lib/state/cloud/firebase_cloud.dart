@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +10,7 @@ import '../../firebase_options.dart';
 import 'cloud_auth.dart';
 import 'cloud_store.dart';
 import 'firebase_services.dart';
+import 'leaderboard_service.dart';
 
 /// Start Firebase, crash reporting and tuned balance. If Firebase fails (no
 /// config, unsupported platform), the game still runs: it gets the
@@ -16,7 +18,12 @@ import 'firebase_services.dart';
 ///
 /// Runs before the game loads, so Remote Config balance is in place before
 /// the first save is read.
-Future<({CloudAuth auth, CloudSaveStore store})> startCloud() async {
+Future<
+    ({
+      CloudAuth auth,
+      CloudSaveStore store,
+      LeaderboardService leaderboard,
+    })> startCloud() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -26,12 +33,14 @@ Future<({CloudAuth auth, CloudSaveStore store})> startCloud() async {
     return (
       auth: FirebaseCloudAuth(FirebaseAuth.instance),
       store: FirestoreCloudSaveStore(FirebaseFirestore.instance),
+      leaderboard: FirebaseLeaderboardService(FirebaseFirestore.instance),
     );
   } on Object catch (e) {
     debugPrint('Cloud save disabled: $e');
     return (
       auth: const UnavailableCloudAuth(),
       store: const UnavailableCloudSaveStore(),
+      leaderboard: const UnavailableLeaderboardService(),
     );
   }
 }
@@ -180,6 +189,63 @@ class FirebaseCloudAuth implements CloudAuth {
         'too-many-requests' => 'Too many attempts. Please wait and try again.',
         _ => 'Something went wrong (${e.code}). Please try again.',
       });
+}
+
+/// Leaderboard via the validateSync Cloud Function (writes) and the
+/// read-only `scores` collection (reads).
+class FirebaseLeaderboardService implements LeaderboardService {
+  FirebaseLeaderboardService(this._db);
+
+  final FirebaseFirestore _db;
+
+  /// Same region as the function and the database (Mumbai).
+  static const String region = 'asia-south1';
+
+  @override
+  Future<MyStanding> submit(GameState save) async {
+    try {
+      final result = await FirebaseFunctions.instanceFor(region: region)
+          .httpsCallable('validateSync')
+          .call<Map<String, dynamic>>({'save': save.toJson()});
+      final data = result.data;
+      return MyStanding(
+        score: (data['score'] as num).toInt(),
+        rank: (data['rank'] as num).toInt(),
+      );
+    } on FirebaseFunctionsException catch (e) {
+      throw CloudException(switch (e.code) {
+        'not-found' => 'The leaderboard is not live yet.',
+        'unauthenticated' => 'Sign in to join the leaderboard.',
+        'unavailable' ||
+        'deadline-exceeded' ||
+        'internal' =>
+          'Could not reach the leaderboard. Check your internet and try again.',
+        _ => 'The leaderboard is unavailable (${e.code}).',
+      });
+    }
+  }
+
+  @override
+  Future<List<LeaderboardEntry>> top({int limit = 100}) async {
+    try {
+      final snap = await _db
+          .collection('scores')
+          .orderBy('score', descending: true)
+          .limit(limit)
+          .get();
+      return [
+        for (final d in snap.docs)
+          LeaderboardEntry(
+            uid: d.id,
+            name: (d.data()['name'] as String?) ?? 'Miner',
+            score: ((d.data()['score'] as num?) ?? 0).toInt(),
+          ),
+      ];
+    } on FirebaseException {
+      throw const CloudException(
+          'Could not load the leaderboard. Check your internet and try again.');
+    }
+  }
 }
 
 /// Saves live at `users/{uid}`; the security rules only let a player read,

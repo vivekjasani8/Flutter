@@ -1,6 +1,7 @@
 import 'package:idle_miner_sim/engine/economy.dart';
 import 'package:idle_miner_sim/state/cloud/cloud_auth.dart';
 import 'package:idle_miner_sim/state/cloud/cloud_store.dart';
+import 'package:idle_miner_sim/state/cloud/leaderboard_service.dart';
 
 const _offline = CloudException('No internet connection.');
 
@@ -68,6 +69,41 @@ class FakeCloudAuth implements CloudAuth {
     deletedUids.add(u.uid);
     googleOwners.removeWhere((_, uid) => uid == u.uid);
     _user = null;
+  }
+}
+
+/// In-memory stand-in for the validateSync function + `scores` collection.
+/// Like the server, it stores the score itself; tests seed other players.
+class FakeLeaderboard implements LeaderboardService {
+  FakeLeaderboard(this.auth);
+
+  final FakeCloudAuth auth;
+  bool online = true;
+  int submits = 0;
+
+  /// uid -> (name, score).
+  final Map<String, ({String name, int score})> scores = {};
+
+  @override
+  Future<MyStanding> submit(GameState save) async {
+    if (!online) throw _offline;
+    submits++;
+    final uid = auth.currentUser!.uid;
+    final score = save.lifetimeCoins.floor();
+    scores[uid] = (name: save.playerName, score: score);
+    final ahead = scores.values.where((e) => e.score > score).length;
+    return MyStanding(score: score, rank: ahead + 1);
+  }
+
+  @override
+  Future<List<LeaderboardEntry>> top({int limit = 100}) async {
+    if (!online) throw _offline;
+    final sorted = scores.entries.toList()
+      ..sort((a, b) => b.value.score.compareTo(a.value.score));
+    return [
+      for (final e in sorted.take(limit))
+        LeaderboardEntry(uid: e.key, name: e.value.name, score: e.value.score),
+    ];
   }
 }
 
