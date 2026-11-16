@@ -87,8 +87,19 @@ class _AppShellState extends ConsumerState<AppShell> {
     ];
     if (titles.isEmpty) return;
     Haptics.achievement(ref);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Achievement unlocked: ${titles.join(', ')}'),
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    messenger.showSnackBar(SnackBar(
+      content: Row(children: [
+        const Icon(Icons.emoji_events, color: Color(0xFFF2B544), size: 20),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text('Achievement unlocked: ${titles.join(', ')}'),
+        ),
+      ]),
+      // Flutter keeps a snackbar with an action on screen until it is
+      // tapped; this one is a heads-up, so let it go by itself.
+      persist: false,
+      duration: const Duration(seconds: 4),
       action: SnackBarAction(
         label: 'View',
         onPressed: () => widget.shell.goBranch(_rewardsTab),

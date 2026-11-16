@@ -171,9 +171,27 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
+      // A navy banner with gold action in both modes (Material's default in
+      // dark mode is a near-white bar that clashes with the brand).
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: scheme.brightness == Brightness.dark
+            ? scheme.surfaceContainerHighest
+            : scheme.inverseSurface,
+        contentTextStyle: text.bodyMedium?.copyWith(
+            color: scheme.brightness == Brightness.dark
+                ? scheme.onSurface
+                : scheme.onInverseSurface),
+        actionTextColor: const Color(0xFFF2B544),
+        closeIconColor: scheme.brightness == Brightness.dark
+            ? scheme.onSurfaceVariant
+            : scheme.onInverseSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: scheme.brightness == Brightness.dark
+              ? BorderSide(color: scheme.outlineVariant)
+              : BorderSide.none,
+        ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: SegmentedButton.styleFrom(

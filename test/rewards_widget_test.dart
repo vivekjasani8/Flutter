@@ -141,6 +141,18 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('achievement-count')), findsOneWidget);
     });
+
+    testWidgets('the achievement banner goes away by itself', (tester) async {
+      await pumpApp(tester, clock, reminders: os);
+      await openTab(tester, 'Shop');
+      await tester.tap(find.byKey(const ValueKey('buy-cpu')));
+      await tester.pumpAndSettle();
+      expect(find.text('Achievement unlocked: Booting Up'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      expect(find.text('Achievement unlocked: Booting Up'), findsNothing);
+    });
   });
 
   group('reminders', () {
