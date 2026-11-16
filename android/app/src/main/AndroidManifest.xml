@@ -4,7 +4,7 @@
          Reminders are inexact, so no exact-alarm permission is needed. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
-        android:label="idle_miner_sim"
+        android:label="Idle Miner Sim"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

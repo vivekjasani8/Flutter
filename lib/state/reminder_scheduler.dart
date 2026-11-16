@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
@@ -44,6 +46,10 @@ class LocalReminderScheduler implements ReminderScheduler {
       'reminders',
       'Reminders',
       channelDescription: 'Storage full and daily streak reminders',
+      // White fan silhouette (res/drawable-*/ic_notification.png), tinted
+      // with the brand gold where Android shows the accent colour.
+      icon: 'ic_notification',
+      color: Color(0xFFF2B544),
     ),
     iOS: DarwinNotificationDetails(),
   );
@@ -56,7 +62,7 @@ class LocalReminderScheduler implements ReminderScheduler {
       final plugin = FlutterLocalNotificationsPlugin();
       await plugin.initialize(
         settings: const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+          android: AndroidInitializationSettings('@drawable/ic_notification'),
           // Don't prompt on launch; the app asks at the right moment.
           iOS: DarwinInitializationSettings(
             requestAlertPermission: false,

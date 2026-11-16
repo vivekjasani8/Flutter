@@ -138,6 +138,62 @@ class MiningFan extends StatelessWidget {
   }
 }
 
+/// Hub radius as a share of the fan radius (the hub itself is drawn by the
+/// caller: a plain hub in the app, the SimCoin in the app icon).
+const double fanHubRatio = 0.24;
+
+/// The brand fan: outer ring plus seven swept blades around a hub of radius
+/// `r * fanHubRatio`. Shared by the in-app animation and the generated app
+/// icon, splash and notification art, so they always match.
+void paintFan(
+  Canvas canvas,
+  Offset c,
+  double r, {
+  required Color blade,
+  required Color ring,
+}) {
+  Offset polar(double radius, double angle) =>
+      c + Offset(math.cos(angle), math.sin(angle)) * radius;
+
+  canvas.drawCircle(
+    c,
+    r * 0.93,
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * 0.07
+      ..color = ring,
+  );
+
+  final bladePaint = Paint()..color = blade;
+  final hubR = r * fanHubRatio;
+  final tipR = r * 0.82;
+  const blades = 7;
+  for (var i = 0; i < blades; i++) {
+    final a = i * 2 * math.pi / blades;
+    // Root on the hub, sweeping out to a wide tip: reads as a fan blade.
+    final path = Path()
+      ..moveTo(polar(hubR, a - 0.22).dx, polar(hubR, a - 0.22).dy)
+      ..quadraticBezierTo(
+        polar(r * 0.62, a - 0.05).dx,
+        polar(r * 0.62, a - 0.05).dy,
+        polar(tipR, a + 0.18).dx,
+        polar(tipR, a + 0.18).dy,
+      )
+      ..arcToPoint(
+        polar(tipR, a + 0.62),
+        radius: Radius.circular(tipR),
+      )
+      ..quadraticBezierTo(
+        polar(r * 0.55, a + 0.42).dx,
+        polar(r * 0.55, a + 0.42).dy,
+        polar(hubR, a + 0.24).dx,
+        polar(hubR, a + 0.24).dy,
+      )
+      ..close();
+    canvas.drawPath(path, bladePaint);
+  }
+}
+
 /// A PC-style cooling fan: swept blades between a hub and an outer ring.
 class _FanPainter extends CustomPainter {
   _FanPainter({required this.blade, required this.hub, required this.ring});
@@ -150,46 +206,8 @@ class _FanPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
     final r = size.shortestSide / 2;
-    Offset polar(double radius, double angle) =>
-        c + Offset(math.cos(angle), math.sin(angle)) * radius;
-
-    canvas.drawCircle(
-      c,
-      r * 0.93,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = r * 0.07
-        ..color = ring,
-    );
-
-    final bladePaint = Paint()..color = blade;
-    final hubR = r * 0.24;
-    final tipR = r * 0.82;
-    const blades = 7;
-    for (var i = 0; i < blades; i++) {
-      final a = i * 2 * math.pi / blades;
-      // Root on the hub, sweeping out to a wide tip: reads as a fan blade.
-      final path = Path()
-        ..moveTo(polar(hubR, a - 0.22).dx, polar(hubR, a - 0.22).dy)
-        ..quadraticBezierTo(
-          polar(r * 0.62, a - 0.05).dx,
-          polar(r * 0.62, a - 0.05).dy,
-          polar(tipR, a + 0.18).dx,
-          polar(tipR, a + 0.18).dy,
-        )
-        ..arcToPoint(
-          polar(tipR, a + 0.62),
-          radius: Radius.circular(tipR),
-        )
-        ..quadraticBezierTo(
-          polar(r * 0.55, a + 0.42).dx,
-          polar(r * 0.55, a + 0.42).dy,
-          polar(hubR, a + 0.24).dx,
-          polar(hubR, a + 0.24).dy,
-        )
-        ..close();
-      canvas.drawPath(path, bladePaint);
-    }
+    paintFan(canvas, c, r, blade: blade, ring: ring);
+    final hubR = r * fanHubRatio;
     canvas
       ..drawCircle(c, hubR, Paint()..color = hub)
       ..drawCircle(

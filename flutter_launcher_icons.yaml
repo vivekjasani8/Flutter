@@ -1,0 +1,20 @@
+# App icons, generated from the brand artwork in assets/branding/
+# (itself rendered by tool/brand_assets_test.dart). Regenerate with:
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/branding/app_icon.png"
+
+  # Android 8+ adaptive icon: navy background + gold fan foreground. The
+  # artwork already sits inside the 66% safe zone, so no extra inset.
+  adaptive_icon_background: "#0E1726"
+  adaptive_icon_foreground: "assets/branding/app_icon_foreground.png"
+  adaptive_icon_foreground_inset: 0
+  # Android 13+ themed icon (tinted to match the wallpaper).
+  adaptive_icon_monochrome: "assets/branding/app_icon_monochrome.png"
+  min_sdk_android: 24
+
+  # The App Store rejects icons with transparency.
+  remove_alpha_ios: true
+  background_color_ios: "#0E1726"

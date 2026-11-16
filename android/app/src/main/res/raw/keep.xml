@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release builds remove resources that look unused. The notification icon
+     is only named from Dart (lib/state/reminder_scheduler.dart), so keep it
+     explicitly or reminders would fail to show in store builds. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_notification" />

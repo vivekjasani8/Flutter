@@ -21,18 +21,20 @@ milestone that covers it.
 - [x] **iOS bundle ID** is `com.vivekjasani.idleminersim` (tests:
       `…RunnerTests`). Register it in your Apple Developer account when you
       enrol.
-- [ ] **Home-screen name**: `android:label` in
-      `android/app/src/main/AndroidManifest.xml` is `idle_miner_sim`; set it to
-      `Idle Miner Sim`. Same for `CFBundleDisplayName` in `ios/Runner/Info.plist`.
-- [ ] **App icon**: replace the default Flutter icons (e.g. with the
-      `flutter_launcher_icons` package) for Android and iOS, including the
-      Android 13 themed (monochrome) icon.
-- [ ] **Splash screen**: replace the default white launch screen (e.g.
-      `flutter_native_splash`).
-- [ ] **Notification icon**: reminders currently use the launcher icon
-      (`@mipmap/ic_launcher` in `lib/state/reminder_scheduler.dart`). Android
-      expects a small white-on-transparent icon; add one (e.g.
-      `res/drawable/ic_notification`) or it may show as a grey square.
+- [x] **Home-screen name**: "Idle Miner Sim" on Android and iOS.
+- [x] **App icon**: gold fan + SimCoin on navy; Android adaptive icon,
+      Android 13 themed (monochrome) icon, all iOS sizes. Checked on a phone.
+- [x] **Splash screen**: navy with the fan + coin, including the Android 12+
+      splash API and iOS. Checked on a phone.
+- [x] **Notification icon**: white fan silhouette tinted gold, kept in
+      release builds by `res/raw/keep.xml`. Checked on a phone.
+- To change the artwork: edit `tool/brand_assets_test.dart`, then run
+  `flutter test tool/brand_assets_test.dart`,
+  `dart run flutter_launcher_icons` and
+  `dart run flutter_native_splash:create`.
+- [ ] Store artwork: 512×512 Play icon (use `assets/branding/app_icon.png`
+      scaled down) and the 1024×500 feature graphic, when you write the
+      listing.
 
 ## 2. Signing and builds
 
